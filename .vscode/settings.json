@@ -1,0 +1,8 @@
+{
+  // Ensures VS Code's integrated terminal launches bash rather than fish.
+  // Required for Cline's shell integration (used to run/read command
+  // output) to work correctly — see docs/dev-environment.md for details.
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.shellIntegration.enabled": true,
+  "redhat.telemetry.enabled": false
+}

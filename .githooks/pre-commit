@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# .githooks/pre-commit — runs before every commit, staged files only.
+#
+# Installed via scripts/install-hooks.sh (core.hooksPath). Never modifies
+# files — if it fails, run ./scripts/check.sh to fix, then re-stage and
+# re-commit. Bypass with `git commit --no-verify` if truly needed.
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "${repo_root}"
+
+exec ./scripts/check.sh --check

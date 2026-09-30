@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# sgdisk — stub for testing scripts/lib/disk.sh without real disk hardware.
+# Only understands the subset of `sgdisk` this project's lib/disk.sh
+# actually calls: `-p <disk>` (print partition table), and
+# `-a <align> -F <disk>` / `-a <align> -E <disk>` (first/last sector of
+# the largest free block). Behavior is controlled by env vars:
+#
+#   SGDISK_STUB_PARTS: space-separated existing partition numbers, used
+#     by `-p` (default: none, i.e. an empty disk)
+#   SGDISK_STUB_FIRST / SGDISK_STUB_LAST: sector numbers printed for
+#     `-F` / `-E` respectively (default: empty, i.e. no free space)
+
+set -euo pipefail
+
+mode=""
+args=("$@")
+for ((i = 0; i < ${#args[@]}; i++)); do
+	case "${args[$i]}" in
+	-p) mode="p" ;;
+	-F) mode="F" ;;
+	-E) mode="E" ;;
+	esac
+done
+
+case "${mode}" in
+p)
+	echo "Disk /dev/stub0: 2000000000 sectors, stub"
+	echo "Number  Start (sector)    End (sector)  Size       Code  Name"
+	for n in ${SGDISK_STUB_PARTS:-}; do
+		printf '   %s            2048       999999999   476.8 GiB  8300  stub\n' "${n}"
+	done
+	;;
+F)
+	printf '%s\n' "${SGDISK_STUB_FIRST:-}"
+	;;
+E)
+	printf '%s\n' "${SGDISK_STUB_LAST:-}"
+	;;
+*)
+	echo "sgdisk stub: unhandled invocation: $*" >&2
+	exit 1
+	;;
+esac

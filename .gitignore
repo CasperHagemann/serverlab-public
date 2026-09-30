@@ -1,0 +1,18 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Local secrets / host-specific overrides
+*.local
+*.secret
+inventory/*.local.md
+
+# Shell / editor backups
+*.bak
+
+# VS Code (keep shared settings, ignore personal overrides)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

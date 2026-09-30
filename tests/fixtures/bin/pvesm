@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# pvesm — stub for testing scripts/lib/pve.sh's pve::storage_disabled without
+# a real Proxmox host. Only understands `pvesm status --storage <id>`, and
+# prints a two-line table (header + one data row) matching real pvesm's
+# column layout (Name Type Status ...), so `awk 'NR==2{print $3}'` picks out
+# the Status column the same way it would against real output.
+#
+#   PVESM_STUB_STATUS: disabled | active  (status to report for a known id)
+#   PVESM_STUB_KNOWN_ID: storage id that exists (default: local)
+#
+# Any --storage id other than PVESM_STUB_KNOWN_ID is reported as unknown
+# (non-zero exit, no output), matching real pvesm's behavior for a
+# nonexistent storage id.
+
+set -euo pipefail
+
+subcommand="${1:?pvesm stub: missing subcommand}"
+shift
+
+case "${subcommand}" in
+status)
+	storage_id=""
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+		--storage)
+			storage_id="$2"
+			shift 2
+			;;
+		*)
+			shift
+			;;
+		esac
+	done
+
+	known_id="${PVESM_STUB_KNOWN_ID:-local}"
+	if [[ "${storage_id}" != "${known_id}" ]]; then
+		echo "storage '${storage_id}' does not exist" >&2
+		exit 2
+	fi
+
+	printf 'Name               Type     Status     Total (KiB)      Used (KiB) Available (KiB)        %%\n'
+	printf '%s               dir   %-8s          0               0               0      N/A\n' "${storage_id}" "${PVESM_STUB_STATUS:-active}"
+	;;
+*)
+	echo "pvesm stub: unhandled subcommand '${subcommand}'" >&2
+	exit 1
+	;;
+esac

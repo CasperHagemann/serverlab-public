@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# pvesh — stub for testing scripts/lib/pve.sh without a real Proxmox host.
+# Only understands the subset of `pvesh` this project's lib/pve.sh actually
+# calls (get/create/set/delete). Behavior for the /nodes/*/tasks/*/status
+# endpoint (used by pve::wait_task) is controlled by env vars:
+#
+#   PVESH_STUB_TASK: ok | fail | running-then-ok | hang  (default: ok)
+#   PVESH_STUB_STATE_FILE: counter file, required for "running-then-ok"
+#   PVESH_STUB_SET_FAIL: if "1", `pvesh set` fails (exit 1, no output)
+
+set -euo pipefail
+
+subcommand="${1:?pvesh stub: missing subcommand}"
+shift
+path="${1:-}"
+shift || true
+
+case "${subcommand}" in
+get)
+	if [[ "${path}" == /nodes/*/tasks/*/status ]]; then
+		case "${PVESH_STUB_TASK:-ok}" in
+		ok)
+			printf '{"status":"stopped","exitstatus":"OK"}\n'
+			;;
+		fail)
+			printf '{"status":"stopped","exitstatus":"some failure"}\n'
+			;;
+		hang)
+			printf '{"status":"running"}\n'
+			;;
+		running-then-ok)
+			state_file="${PVESH_STUB_STATE_FILE:?PVESH_STUB_STATE_FILE required for running-then-ok}"
+			count=0
+			[[ -f "${state_file}" ]] && count="$(<"${state_file}")"
+			count=$((count + 1))
+			printf '%s' "${count}" >"${state_file}"
+			if ((count < 2)); then
+				printf '{"status":"running"}\n'
+			else
+				printf '{"status":"stopped","exitstatus":"OK"}\n'
+			fi
+			;;
+		esac
+	else
+		printf 'STUB_GET %s\n' "${path}"
+	fi
+	;;
+create)
+	printf 'STUB_CREATE %s %s\n' "${path}" "$*"
+	;;
+set)
+	if [[ "${PVESH_STUB_SET_FAIL:-}" == "1" ]]; then
+		exit 1
+	fi
+	printf 'UPID:stub:00000000:00000001:00000002:test:network:root@pam:\n'
+	;;
+delete)
+	printf 'STUB_DELETE %s\n' "${path}"
+	;;
+*)
+	echo "pvesh stub: unhandled subcommand '${subcommand}'" >&2
+	exit 1
+	;;
+esac
