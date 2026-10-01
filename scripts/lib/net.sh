@@ -53,6 +53,9 @@ net::iface_is_up() {
 # Prints the current IPv4 default gateway address, or nothing if none.
 net::default_gateway() {
 	ip route show default 2>/dev/null |
-		awk '/^default/ { for (i = 1; i <= NF; i++) if ($i == "via") print $(i + 1) }' |
+		awk '/^default/ {
+			for (i = 1; i <= NF; i++)
+				if ($i == "via") print $(i + 1)
+		}' |
 		head -n1
 }

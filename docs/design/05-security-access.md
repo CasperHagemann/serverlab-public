@@ -4,7 +4,7 @@
 
 ## Scope
 
-SSH/access control, host firewall, MFA for administrators, API token scoping for scripts.
+SSH/access control, node firewall, MFA for administrators, API token scoping for scripts.
 
 ## Configuration
 
@@ -16,9 +16,9 @@ None.
 
 > Not implemented.
 
-| Item               | Description                   | Depends on |
-| ------------------ | ----------------------------- | ---------- |
-| SSH/access control | Access control for the host   | -          |
-| Host firewall      | Firewall for the host         | -          |
-| Administrator MFA  | MFA for administrators        | -          |
-| API token scoping  | Scoped API tokens for scripts | -          |
+| Item               | Description                         | Depends on |
+| ------------------ | ----------------------------------- | ---------- |
+| SSH/access control | Access control for the Proxmox node | -          |
+| Node firewall      | Firewall for the Proxmox node       | -          |
+| Administrator MFA  | MFA for administrators              | -          |
+| API token scoping  | Scoped API tokens for scripts       | -          |

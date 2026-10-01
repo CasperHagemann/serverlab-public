@@ -57,7 +57,8 @@ pve::wait_task() {
 	local raw status exitstatus
 
 	while ((waited < timeout)); do
-		raw="$(pvesh get "/nodes/$(pve::node)/tasks/${upid}/status" --output-format json 2>/dev/null)" || return 1
+		raw="$(pvesh get "/nodes/$(pve::node)/tasks/${upid}/status" \
+			--output-format json 2>/dev/null)" || return 1
 		status="$(grep -oP '"status"\s*:\s*"\K[^"]+' <<<"${raw}")"
 		if [[ "${status}" == "stopped" ]]; then
 			exitstatus="$(grep -oP '"exitstatus"\s*:\s*"\K[^"]+' <<<"${raw}")"
@@ -77,6 +78,7 @@ pve::wait_task() {
 pve::storage_disabled() {
 	local id="$1"
 	local status
-	status="$(pvesm status --storage "${id}" 2>/dev/null | awk 'NR==2{print $3}')"
+	status="$(pvesm status --storage "${id}" 2>/dev/null |
+		awk 'NR==2{print $3}')"
 	[[ "${status}" == "disabled" ]]
 }

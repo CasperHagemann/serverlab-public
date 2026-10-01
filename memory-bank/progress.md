@@ -2,14 +2,14 @@
 
 ## Implemented
 
-| Area           | State                                                                                                     |
-| -------------- | --------------------------------------------------------------------------------------------------------- |
-| Documentation  | README, ADR-0001 to ADR-0004, `docs/design/` 00-08, `inventory/`, `docs/dev-environment.md`               |
-| Toolchain      | `scripts/check.sh` (fix and `--check` modes), pre-commit hook, bats suite (42 tests)                      |
-| Host scripting | `scripts/lib/` (log, guards, prompt, files, config, pve, net, disk), `scripts/remote-run.sh`, ADR-0003    |
-| Networking     | `10-network.sh` applied on `pve.kiwik.org`: `vmbr1` on `nic1`                                             |
-| Storage        | `20-storage.sh` applied: `local-data` btrfs (`nvme0n1p4`, ~853 GiB), OS storages disabled, test VM booted |
-| MCP servers    | `fetch`, `sequential-thinking` (see `.cline/mcp.json`)                                                    |
+| Area                   | State                                                                                                     |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- |
+| Documentation          | README, ADR-0001 to ADR-0004, `docs/design/` 00-08, `inventory/`, `docs/control-node.md`                  |
+| Toolchain              | `scripts/control-node/check.sh` (fix and `--check` modes), pre-commit hook, bats suite (42 tests)         |
+| Proxmox-node scripting | `scripts/lib/` (log, guards, prompt, files, config, pve, net, disk), `scripts/remote-run.sh`, ADR-0003    |
+| Networking             | `10-network.sh` applied on `pve.kiwik.org`: `vmbr1` on `nic1`                                             |
+| Storage                | `20-storage.sh` applied: `local-data` btrfs (`nvme0n1p4`, ~853 GiB), OS storages disabled, test VM booted |
+| MCP servers            | `fetch`, `sequential-thinking` (see `.cline/mcp.json`)                                                    |
 
 ## Planned
 

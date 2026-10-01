@@ -4,7 +4,7 @@
 
 ## Scope
 
-Layered architecture (hardware, firmware, host, storage/networking/security/backup/monitoring, virtualization) and how the design docs map to it.
+Layered architecture (hardware, firmware, Proxmox node, storage/networking/security/backup/monitoring, virtualization) and how the design docs map to it.
 
 ## Configuration
 

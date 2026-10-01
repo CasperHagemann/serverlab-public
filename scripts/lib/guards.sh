@@ -6,7 +6,7 @@
 readonly SERVERLAB_LIB_GUARDS=1
 
 # guards::require_root
-# Aborts unless running as root. Most Proxmox host configuration requires it.
+# Aborts unless running as root. Most Proxmox node configuration requires it.
 guards::require_root() {
 	if [[ "${EUID}" -ne 0 ]]; then
 		log::die "This script must be run as root."
@@ -14,10 +14,10 @@ guards::require_root() {
 }
 
 # guards::require_proxmox
-# Aborts unless the `pvesh` CLI is available, i.e. we're on a Proxmox host.
+# Aborts unless the `pvesh` CLI is available, i.e. we're on a Proxmox node.
 guards::require_proxmox() {
 	if ! command -v pvesh >/dev/null 2>&1; then
-		log::die "pvesh not found — this does not appear to be a Proxmox host."
+		log::die "pvesh not found — this does not appear to be a Proxmox node."
 	fi
 }
 
@@ -33,14 +33,15 @@ guards::require_cmd() {
 }
 
 # guards::acquire_lock <lock-file>
-# Acquires an exclusive, non-blocking lock so two instances of a host script
-# can't run concurrently. Holds the lock for the lifetime of the process
-# (released automatically on exit, including on error).
+# Acquires an exclusive, non-blocking lock so two instances of a
+# Proxmox-node script can't run concurrently. Holds the lock for the
+# lifetime of the process (released automatically on exit, including on
+# error).
 guards::acquire_lock() {
 	local lock_file="$1"
-	local lock_fd=200
+	local lock_fd
 	mkdir -p "$(dirname "${lock_file}")"
-	eval "exec ${lock_fd}>\"${lock_file}\""
+	exec {lock_fd}>"${lock_file}"
 	if ! flock -n "${lock_fd}"; then
 		log::die "Another instance appears to be running (lock: ${lock_file})."
 	fi

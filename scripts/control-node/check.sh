@@ -4,27 +4,32 @@
 # shell scripts.
 #
 # Two modes:
-#   ./scripts/check.sh            fix mode  — formats the whole repo in place,
-#                                  then runs the bats test suite
-#   ./scripts/check.sh --check    check mode — staged files only, no mutation
-#                                  (used by the pre-commit hook, see
-#                                  .githooks/pre-commit) — does NOT run bats,
-#                                  see note below
+#   ./scripts/control-node/check.sh
+#       fix mode — formats the whole repo in place, then runs the bats
+#       test suite
+#   ./scripts/control-node/check.sh --check
+#       check mode — staged files only, no mutation (used by the
+#       pre-commit hook, see .githooks/pre-commit) — does NOT run bats
 #
 # Steps (fix mode):
-#   1. shfmt      — formats/checks .sh files
+#   1. shfmt       — formats/checks .sh files
 #   2. prettier    — formats/checks .json/.md files
 #   3. shellcheck  — lints .sh files for correctness (never mutates)
-#   4. ec          — verifies against .editorconfig (never mutates)
-#   5. bats        — runs tests/ (recursively), if the directory exists
+#   4. line length — .sh files stay within 80 columns (never mutates)
+#   5. ec          — verifies against .editorconfig (never mutates)
+#   6. bats        — runs tests/ (recursively), if the directory exists
+#
+# Runs on the control node. The 80-column limit comes from the Google Shell
+# Style Guide, which neither shfmt nor shellcheck enforces; a tab counts as
+# 4 columns (see .editorconfig).
 #
 # Requires: shfmt, prettier, shellcheck, ec (editorconfig-checker), bats —
-# see docs/dev-environment.md for install instructions.
+# see docs/control-node.md for install instructions.
 
 set -euo pipefail
 set -o errtrace
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${repo_root}"
 
 # shellcheck source=scripts/lib/common.sh
@@ -37,8 +42,10 @@ fi
 
 on_failure() {
 	if [[ "${check_mode}" == true ]]; then
-		log::error "Pre-commit checks failed — commit aborted. No files were modified."
-		log::error "Run './scripts/check.sh' to auto-fix, then re-stage and commit."
+		log::error "Pre-commit checks failed — commit aborted." \
+			"No files were modified."
+		log::error "Run './scripts/control-node/check.sh' to auto-fix," \
+			"then re-stage and commit."
 		log::error "To bypass (not recommended): git commit --no-verify"
 	else
 		log::error "Check failed — see output above."
@@ -46,9 +53,31 @@ on_failure() {
 }
 trap on_failure ERR
 
+# check_line_length <file...>
+# Prints "<file>:<line>: <n> columns (max 80)" for every line over 80
+# columns, counting a tab as 4 columns. Returns 1 if any line is too long.
+check_line_length() {
+	local file
+	local failed=false
+	local awk_prog='length($0) > 80 {
+		printf "%s:%d: %d columns (max 80)\n", f, NR, length($0)
+		bad = 1
+	}
+	END { exit bad }'
+
+	for file in "$@"; do
+		if ! expand -t4 "${file}" | awk -v f="${file}" "${awk_prog}"; then
+			failed=true
+		fi
+	done
+
+	[[ "${failed}" == false ]]
+}
+
 for tool in shfmt prettier shellcheck ec bats; do
 	if ! command -v "${tool}" >/dev/null 2>&1; then
-		log::error "${tool} not found — see docs/dev-environment.md for install instructions."
+		log::error "${tool} not found —" \
+			"see docs/control-node.md for install instructions."
 		exit 1
 	fi
 done
@@ -85,6 +114,9 @@ if [[ "${check_mode}" == true ]]; then
 
 		log::info "Linting shell scripts (shellcheck)..."
 		shellcheck -S warning "${staged_sh[@]}"
+
+		log::info "Checking line length (max 80 columns)..."
+		check_line_length "${staged_sh[@]}"
 	fi
 
 	if [[ ${#staged_fmt[@]} -gt 0 ]]; then
@@ -108,6 +140,10 @@ else
 	# which are not actionable failures for this script's purposes.
 	find . -name '*.sh' -not -path './.git/*' -print0 |
 		xargs -0 shellcheck -S warning
+
+	log::info "Checking line length (max 80 columns)..."
+	mapfile -t all_sh < <(find . -name '*.sh' -not -path './.git/*')
+	check_line_length "${all_sh[@]}"
 
 	log::info "Verifying against .editorconfig (ec)..."
 	ec -exclude "${exclude_pattern}"

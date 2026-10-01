@@ -6,10 +6,10 @@ Date: 2026-09-29
 
 ## Context
 
-The host has a single NVMe. The OS occupies the first ~100 GB; the remaining
+The Proxmox node has a single NVMe. The OS occupies the first ~100 GB; the remaining
 space is available for guest storage. One storage entry must hold all content
 types (VM disks, container rootdirs, ISOs, templates, backups, snippets). The
-host is a single node with limited RAM.
+Proxmox node is a single node with limited RAM.
 
 ## Decision
 

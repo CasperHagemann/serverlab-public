@@ -3,12 +3,12 @@
 ## What this is
 
 `serverlab` — a homelab project for standing up and configuring a single
-Proxmox VE host from bare metal, using native tooling.
+Proxmox node from bare metal, using native tooling.
 
 ## Scope
 
-**Host only.** Install, storage, networking, security/access, backup,
-monitoring, and (eventually) clustering of the Proxmox host itself.
+**Proxmox node only.** Install, storage, networking, security/access, backup,
+monitoring, and (eventually) clustering of the Proxmox node itself.
 
 **Out of scope:** guest/VM provisioning and configuration, and any services
 or workloads. That will be a separate project.
@@ -21,8 +21,8 @@ and/or the REST API. Rationale and revisit conditions:
 
 ## Roadmap
 
-1. **Single host** (current phase) — configure `pve.kiwik.org` (Minisforum
-   MS-A2) and complete the host design areas in `docs/design/`.
+1. **single-node** (current phase) — configure `pve.kiwik.org` (Minisforum
+   MS-A2) and complete the Proxmox-node design areas in `docs/design/`.
 2. **Clustering** — second physical machine, clustering, hardware-level
    failover (homelab scale).
 

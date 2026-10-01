@@ -1,6 +1,6 @@
-# Development Environment
+# Control Node
 
-This document explains the dev-environment setup for contributors to this
+This document explains the control-node setup for contributors to this
 repo, including MCP (Model Context Protocol) server usage with Cline.
 
 ## MCP servers
@@ -62,24 +62,24 @@ actual bugs (unquoted variables, unreachable code, etc.) — see
 [`scripts/README.md`](../scripts/README.md) for the conventions it enforces.
 `ec` is the verification step that confirms the repo is fully compliant with
 `.editorconfig` after the formatters have run. `bats` runs the test suite
-under [`tests/`](../tests/README.md) — development environment only, never installed
-on Proxmox hosts (see
-[ADR-0003](decisions/0003-host-script-structure-and-conventions.md)).
+under [`tests/`](../tests/README.md) — control node only, never installed
+on Proxmox nodes (see
+[ADR-0003](decisions/0003-proxmox-node-script-structure-and-conventions.md)).
 
 Run all five in one go before committing:
 
 ```bash
-./scripts/check.sh
+./scripts/control-node/check.sh
 ```
 
-See [`scripts/check.sh`](../scripts/check.sh) for exactly what it runs.
+See [`scripts/control-node/check.sh`](../scripts/control-node/check.sh) for exactly what it runs.
 
 ## Pre-commit hook
 
-`./scripts/check.sh` has a `--check` mode: the same four formatting/lint
+`./scripts/control-node/check.sh` has a `--check` mode: the same four formatting/lint
 tools (not `bats` — the test suite runs on the whole `tests/` tree
 regardless of what's staged, and is slower, so it only runs in fix mode,
-i.e. plain `./scripts/check.sh`), restricted to **staged files only**, and
+i.e. plain `./scripts/control-node/check.sh`), restricted to **staged files only**, and
 never modifies anything (uses `shfmt -d` / `prettier --check` instead of the
 writing equivalents). This is wired up as a git pre-commit hook so drift is
 caught automatically.
@@ -89,12 +89,12 @@ One-time setup per clone (hooks live in `.githooks/`, which is tracked, but
 clone):
 
 ```bash
-./scripts/install-hooks.sh
+./scripts/control-node/install-hooks.sh
 ```
 
-After that, every `git commit` runs `./scripts/check.sh --check` first. If
+After that, every `git commit` runs `./scripts/control-node/check.sh --check` first. If
 it fails, the commit is aborted with no files touched — run
-`./scripts/check.sh` (no flag) to fix, re-stage, and commit again. To bypass
+`./scripts/control-node/check.sh` (no flag) to fix, re-stage, and commit again. To bypass
 in an emergency: `git commit --no-verify`.
 
 ## VS Code: terminal shell integration (fish → bash)
@@ -140,11 +140,11 @@ terminal is actually using (open a terminal, run `echo $0`), and check that
 `.vscode/settings.json` is being picked up (it applies to plain
 `code .`/Open Folder as well as opening `serverlab.code-workspace`).
 
-## Running scripts on the remote Proxmox host
+## Running scripts on the remote Proxmox node
 
-`scripts/host/*.sh` are written to run **on** the Proxmox host — they call
+`scripts/proxmox-node/*.sh` are written to run **on** the Proxmox node — they call
 `pvesh`, read `/etc/network/interfaces`, etc. If you don't have a clone of
-this repo on the host but can reach it over SSH, use
+this repo on the Proxmox node but can reach it over SSH, use
 [`scripts/remote-run.sh`](../scripts/remote-run.sh) instead of copying
 files over manually:
 
@@ -153,15 +153,15 @@ scripts/remote-run.sh root@192.168.88.101 10-network.sh -- --dry-run
 ```
 
 This bundles `scripts/lib/*.sh`, the target script, and (if present) the
-matching `config/hosts/<remote-hostname>.env` into a single command and
+matching `config/proxmox-nodes/<remote-hostname>.env` into a single command and
 runs it over `ssh -t`, so interactive prompts still work and nothing is
-written to the host's filesystem by this step — only the target script's
-own work (e.g. a config backup) touches the host's disk. Re-run it after
-every local change; the remote host never keeps its own copy to drift out
+written to the Proxmox node's filesystem by this step — only the target script's
+own work (e.g. a config backup) touches the Proxmox node's disk. Re-run it after
+every local change; the Proxmox node never keeps its own copy to drift out
 of sync with your working tree.
 
 **Caveat — dropped SSH sessions.** Applying a network change reloads
-interfaces on the host (`ifreload -a`), including the one your SSH session
+interfaces on the Proxmox node (`ifreload -a`), including the one your SSH session
 is using. Scripts guard the apply and verify steps against `SIGHUP` so
 a dropped session doesn't kill them partway through, but if your connection
 does drop, reconnect and re-run the script — pre-flight checks are designed
@@ -169,13 +169,13 @@ to report "nothing to do" if the change already succeeded, or resume
 cleanly if it didn't.
 
 **Fallback — copy-then-run.** For debugging (e.g. so error line numbers
-match the real files), you can instead copy the files to the host and run
+match the real files), you can instead copy the files to the Proxmox node and run
 them there directly:
 
 ```bash
 tar -czf - scripts config | ssh root@192.168.88.101 'mkdir -p /root/serverlab && tar -xzf - -C /root/serverlab'
-ssh -t root@192.168.88.101 '/root/serverlab/scripts/host/10-network.sh --dry-run'
+ssh -t root@192.168.88.101 '/root/serverlab/scripts/proxmox-node/10-network.sh --dry-run'
 ```
 
 Treat this copy as a throwaway snapshot — re-run the `tar` step after any
-local change rather than editing the copy on the host.
+local change rather than editing the copy on the Proxmox node.

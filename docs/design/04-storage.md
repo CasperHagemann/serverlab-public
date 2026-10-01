@@ -42,7 +42,7 @@ Local vs shared storage, filesystem choice, pool layout.
 
 ## Implementation
 
-Script: `scripts/host/20-storage.sh` ([`scripts/README.md`](../../scripts/README.md)). Steps:
+Script: `scripts/proxmox-node/20-storage.sh` ([`scripts/README.md`](../../scripts/README.md)). Steps:
 
 1. Detect the OS disk (`disk::os_disk`, or `LOCAL_DATA_DISK`), validate its geometry, find the largest free extent (1 MiB-aligned).
 2. Create a partition in that extent with `sgdisk`; reject if smaller than `LOCAL_DATA_MIN_GIB`.
@@ -52,9 +52,9 @@ Script: `scripts/host/20-storage.sh` ([`scripts/README.md`](../../scripts/README
 
 Re-running is idempotent. If `local-data` is mounted and registered, only re-enabled `OS_STORAGES` entries are disabled. If nothing differs, the script reports "nothing to do".
 
-On failure after the apply step starts, the script stops and prints manual undo steps (GPT backup restore, fstab backup restore); see [ADR-0003](../decisions/0003-host-script-structure-and-conventions.md).
+On failure after the apply step starts, the script stops and prints manual undo steps (GPT backup restore, fstab backup restore); see [ADR-0003](../decisions/0003-proxmox-node-script-structure-and-conventions.md).
 
-Config: `config/hosts/<hostname>.env` ([`config/README.md`](../../config/README.md)).
+Config: `config/proxmox-nodes/<hostname>.env` ([`config/README.md`](../../config/README.md)).
 
 | Key                       | Purpose                             |
 | ------------------------- | ----------------------------------- |

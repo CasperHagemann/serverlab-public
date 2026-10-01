@@ -1,12 +1,15 @@
 # Scripts
 
-Bash scripts for configuring the Proxmox host — install/post-install setup,
-storage, networking, security, backup, monitoring. Guest/VM/container
-provisioning is explicitly out of scope (see root README).
+Bash scripts for this repo: Proxmox-node configuration scripts
+(`proxmox-node/`: install/post-install setup, storage, networking, security,
+backup, monitoring), shared libraries (`lib/`), and control-node tooling
+(`control-node/`, `remote-run.sh`). Guest/VM/container provisioning is
+explicitly out of scope (see root README). The terms _control node_ and
+_Proxmox node_ are defined in the root README (Environments).
 
 ## Conventions
 
-All scripts in this directory follow these rules:
+### All scripts (control node and Proxmox node)
 
 1. **`set -euo pipefail` at the top of every script.**
    - `-e`: stop on any command failure, rather than continuing in a
@@ -17,7 +20,7 @@ All scripts in this directory follow these rules:
 
 2. **shellcheck-clean.** Run `shellcheck path/to/script.sh` before
    considering a script done, and fix what it flags (in particular, quote
-   all variable expansions: `"$VAR"` not `$VAR`). `./scripts/check.sh` runs
+   all variable expansions: `"$VAR"` not `$VAR`). `./scripts/control-node/check.sh` runs
    this across all scripts at once.
 
 3. **Formatted with `shfmt`.** Run `shfmt -w path/to/script.sh` before
@@ -26,36 +29,41 @@ All scripts in this directory follow these rules:
    automatically — no extra flags needed. To check formatting without
    changing anything (e.g. before committing), use `shfmt -d
 path/to/script.sh`; a clean exit code (`0`) with no diff means the file
-   is already formatted correctly. `./scripts/check.sh` runs this across all
+   is already formatted correctly. `./scripts/control-node/check.sh` runs this across all
    scripts at once, alongside the repo's other formatting/linting tools —
-   see [`docs/dev-environment.md`](../docs/dev-environment.md).
+   see [`docs/control-node.md`](../docs/control-node.md).
 
-4. **Idempotent where possible.** Scripts on a Proxmox host may be re-run —
+4. **Follow the [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)**
+   for anything not already covered by shfmt/shellcheck (naming, quoting,
+   `local`, function structure, 80-column lines). It's the de facto bash
+   standard and the reference point for the conventions below.
+   `./scripts/control-node/check.sh` enforces the line limit.
+
+### Proxmox-node scripts (`scripts/proxmox-node/`)
+
+These run on the Proxmox node and also follow:
+
+5. **Idempotent where possible.** Scripts on a Proxmox node may be re-run —
    check whether a resource/state already exists before creating/changing
    it, rather than assuming a clean slate.
 
-5. **No hardcoded host-specific values.** NIC names, disk device paths,
-   VLAN IDs, etc. differ per host. Source these from a config file (see
+6. **No hardcoded node-specific values.** NIC names, disk device paths,
+   VLAN IDs, etc. differ per node. Source these from a config file (see
    below) rather than hardcoding them, so the same script works unchanged
-   across hosts.
+   across nodes.
 
-6. **Prefer `pvesh` over memorizing individual CLI tool flags** (`qm`,
+7. **Prefer `pvesh` over memorizing individual CLI tool flags** (`qm`,
    `pct`, `pvesm`) where practical — `pvesh` exposes the full REST API
    locally and is a closer match to the API surface if scripts are later
    invoked remotely.
 
-7. **No extra packages on Proxmox hosts unless absolutely necessary.**
+8. **No extra packages on Proxmox nodes unless absolutely necessary.**
    Scripts must work using only what's on a base Proxmox VE install (bash,
    `ip`, `awk`, `pvesh`, `ifupdown2`, etc.) — don't add a dependency like
    `jq` just for convenience. If richer processing is genuinely needed,
-   do it on the development environment side (e.g. in `remote-run.sh`,
-   which runs in a normal Linux development environment) instead of
-   installing a package on every host.
-
-8. **Follow the [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)**
-   for anything not already covered by shfmt/shellcheck (naming, quoting,
-   `local`, function structure). It's the de facto bash standard and the
-   reference point for the conventions below.
+   do it on the control node (e.g. in `remote-run.sh`,
+   which runs on the control node) instead of
+   installing a package on every Proxmox node.
 
 ## `scripts/lib/` — shared function libraries
 
@@ -93,7 +101,7 @@ Rules for files in `lib/`:
 
 ## Script structure
 
-Beyond a trivial one-liner, a host script has a `main` function that
+Beyond a trivial one-liner, a Proxmox-node script has a `main` function that
 calls the others in order, with the script's last line being `main "$@"`.
 Constants (e.g. file paths) are declared `readonly` near the top. The
 phases, in order:
@@ -102,7 +110,7 @@ phases, in order:
    first (see below), and only prompt interactively for anything missing —
    this keeps re-running scripts fast while still supporting first-run
    interactive setup. Support `--dry-run` and `--yes` where applicable.
-2. **Pre-flight checks.** Read current host state and verify assumptions —
+2. **Pre-flight checks.** Read current Proxmox node state and verify assumptions —
    does the resource already exist, is a prerequisite file/interface
    present, is there a conflicting change already staged. If the target
    state already matches, log it and exit 0 (idempotency) rather than
@@ -113,7 +121,7 @@ phases, in order:
 4. **Back up and stage.** Back up anything about to be overwritten before
    changing it.
 5. **Apply.** Make the change.
-6. **Post-verify.** Re-check local host state to confirm the change is
+6. **Post-verify.** Re-check Proxmox node state to confirm the change is
    correct (don't rely on external services responding, e.g. pinging a
    gateway — that can fail for reasons unrelated to the script and would
    trigger a false failure). On failure, stop and print the manual undo
@@ -121,33 +129,34 @@ phases, in order:
 7. **Summary.** Report what changed, where any backup lives, and whether a
    reboot is required.
 
-See [`host/10-network.sh`](host/10-network.sh) and
-[`host/20-storage.sh`](host/20-storage.sh) for concrete examples, and
-[`docs/decisions/0003-host-script-structure-and-conventions.md`](../docs/decisions/0003-host-script-structure-and-conventions.md)
+See [`proxmox-node/10-network.sh`](proxmox-node/10-network.sh) and
+[`proxmox-node/20-storage.sh`](proxmox-node/20-storage.sh) for concrete examples, and
+[`docs/decisions/0003-proxmox-node-script-structure-and-conventions.md`](../docs/decisions/0003-proxmox-node-script-structure-and-conventions.md)
 for the reasoning behind this structure.
 
 ## Configuration pattern
 
 Scripts read required values (management interface name, VLAN IDs, etc.)
-from a per-host config file in `config/hosts/<hostname>.env`, and only
+from a per-node config file in `config/proxmox-nodes/<hostname>.env`, and only
 prompt interactively for values that are missing — see
 [`config/README.md`](../config/README.md) for the file format and
 `config::load`/`config::require` in
 [`lib/config.sh`](lib/config.sh) for how scripts consume it.
 
-## Running scripts on the remote Proxmox host
+## Running scripts on the remote Proxmox node
 
-These scripts are meant to run **on** the Proxmox host (they call `pvesh`,
+These scripts are meant to run **on** the Proxmox node (they call `pvesh`,
 read `/etc/network/interfaces`, etc.), but this repo isn't necessarily
-cloned there. Use [`remote-run.sh`](remote-run.sh) to run a host script
-over SSH without copying anything to the host's filesystem first — see
-[`docs/dev-environment.md`](../docs/dev-environment.md#running-scripts-on-the-remote-proxmox-host)
+cloned there. Use [`remote-run.sh`](remote-run.sh) to run a Proxmox-node script
+over SSH without copying anything to the Proxmox node's filesystem first — see
+[`docs/control-node.md`](../docs/control-node.md#running-scripts-on-the-remote-proxmox-node)
 for usage and caveats.
 
 ## Layout
 
-| Path            | Purpose                                                                            |
-| --------------- | ---------------------------------------------------------------------------------- |
-| `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers |
-| `host/`         | Post-install host configuration scripts, numbered for run order (`10-`, `20-`, …)  |
-| `remote-run.sh` | Bundles and runs a `host/` script on a remote host over SSH                        |
+| Path            | Purpose                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers        |
+| `proxmox-node/` | Post-install Proxmox-node configuration scripts, numbered for run order (`10-`, `20-`, …) |
+| `control-node/` | Control-node tooling: `check.sh` (format/lint/test), `install-hooks.sh` (git hooks setup) |
+| `remote-run.sh` | Runs on the control node; bundles and runs a `proxmox-node/` script on a Proxmox node     |

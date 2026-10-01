@@ -4,10 +4,10 @@ Source of truth for IP address allocations.
 
 ## Management
 
-| Purpose                | IP                | Notes                                         |
-| ---------------------- | ----------------- | --------------------------------------------- |
-| `pve.kiwik.org` (host) | 192.168.88.101/24 | Proxmox host management IP, on `vmbr0`/`nic0` |
-| Gateway / DNS          | 192.168.88.1      | External network equipment                    |
+| Purpose                        | IP                | Notes                                         |
+| ------------------------------ | ----------------- | --------------------------------------------- |
+| `pve.kiwik.org` (Proxmox node) | 192.168.88.101/24 | Proxmox node management IP, on `vmbr0`/`nic0` |
+| Gateway / DNS                  | 192.168.88.1      | External network equipment                    |
 
 ## General VM network
 
