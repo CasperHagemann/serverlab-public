@@ -1,9 +1,8 @@
 # Architecture Decision Records
 
-This directory records point-in-time decisions and the reasoning behind them,
-for the Proxmox node configuration project. Unlike `docs/design/`, ADRs are
-**not** updated as understanding evolves — if a decision changes, a new ADR
-supersedes the old one, and the old one is kept for history.
+Design decisions currently in force for the Proxmox node configuration
+project, and the reasoning behind them. Detailed target state lives in
+`docs/design/`. See [ADR-0001](0001-record-architecture-decisions.md).
 
 ## Index
 
@@ -14,7 +13,13 @@ supersedes the old one, and the old one is kept for history.
 | [0003](0003-proxmox-node-script-structure-and-conventions.md) | Proxmox-node script structure and conventions | Accepted |
 | [0004](0004-local-guest-storage-btrfs.md)                     | Local guest storage: btrfs                    | Accepted |
 
-## Creating a new ADR
+## Creating or changing an ADR
 
-Copy [`template.md`](template.md) to `NNNN-short-title.md` (next sequential
-number), fill it in, and add a row to the index above.
+ADRs describe the decisions currently in force. When a decision changes,
+update its ADR in place and its date; git history keeps earlier versions.
+Remove an ADR whose decision no longer applies, and remove its row from the
+index.
+
+Structure, required content and workflow:
+[`.clinerules/custom/adr-decisions.md`](../../.clinerules/custom/adr-decisions.md).
+The structure is checked by `scripts/control-node/check.sh`.

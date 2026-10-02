@@ -1,4 +1,4 @@
-# 2. Use bash and Proxmox native tooling
+# 0002. Use bash and Proxmox native tooling
 
 Status: Accepted
 
@@ -48,14 +48,12 @@ see below.
   at once) has no built-in support and would need to be added manually if it
   becomes necessary.
 - This decision is scoped to the _current_ single-node, single-admin
-  reality. It should be revisited (a new ADR written) if any of the
-  following change materially:
-  - **Node count** grows beyond a small cluster (phase 2), where repeated
-    manual application of scripts across nodes becomes error-prone enough
-    that Ansible's idempotent, multi-node model pays for its overhead.
-  - **Guest/service provisioning** enters scope (explicitly out of scope
-    today — see root `README.md`), where Ansible's role/inventory model is
-    a much stronger fit than ad hoc bash.
-  - **A second administrator** joins the project, where shared, declarative
-    tooling reduces the risk of undocumented manual steps or drift between
-    people.
+  reality. It does not cover:
+  - **A cluster** beyond a small node count (phase 2), where Ansible's
+    idempotent, multi-node model would weigh against repeated manual
+    application of scripts.
+  - **Guest/service provisioning**, which is out of scope today (see root
+    `README.md`); Ansible's role/inventory model fits that better than ad
+    hoc bash.
+  - **A second administrator**, where shared, declarative tooling reduces
+    the risk of undocumented manual steps or drift between people.

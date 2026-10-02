@@ -1,4 +1,4 @@
-# 3. Proxmox-node script structure and conventions
+# 0003. Proxmox-node script structure and conventions
 
 Status: Accepted
 
@@ -141,9 +141,9 @@ later if assertions become repetitive.
   relying on a persistent copy on the Proxmox node, so there's no drift between
   what's run and the current working tree, at the cost of slightly more
   SSH traffic per run.
-- This decision is scoped to single-script, single-node execution. It
-  should be revisited if scripts need to be composed/orchestrated across
-  multiple Proxmox nodes (see ADR-0002's own revisit triggers).
+- This decision covers single-script, single-node execution only.
+  Composing or orchestrating scripts across multiple Proxmox nodes is out
+  of its scope (see ADR-0002).
 - Contributors need `bats` installed in their control node alongside the
   existing formatting/lint tools. Proxmox nodes stay free of extra packages,
   consistent with the "no extra Proxmox-node packages" convention.
@@ -157,6 +157,5 @@ later if assertions become repetitive.
 - The manual `remote-run.sh` walkthrough (dry-run, decline, `--yes`,
   no-op re-run) is the intended stopping point for Proxmox-node verification —
   future Proxmox-node scripts should be checked the same way, not by building a
-  new automated Proxmox-node test harness. If that walkthrough becomes too
-  tedious to repeat by hand as more Proxmox-node scripts are added, revisit this
-  decision rather than reintroducing ad hoc tooling.
+  new automated Proxmox-node test harness. Ad hoc tooling is not
+  introduced in its place.

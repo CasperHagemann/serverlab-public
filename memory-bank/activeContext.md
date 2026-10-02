@@ -37,7 +37,9 @@ Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 - Inventory files hold concrete values only.
 - Use "control node" (where development happens) and
   "Proxmox node". Never "workstation".
-- Hidden folders (`.clinerules/`, `.agents/`, `.cline/`) are kept as they are.
+- Hidden folders (`.agents/`, `.cline/`, and `.clinerules/` except
+  `.clinerules/custom/`) are kept as they are. `.clinerules/custom/` holds
+  project rules written by hand, always active (no frontmatter).
 
 **Scripts and workflow**
 

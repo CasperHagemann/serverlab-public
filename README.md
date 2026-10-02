@@ -52,7 +52,7 @@ used in the Proxmox API/cluster sense (`/nodes/<node>`, `pve::node`).
 | Path                   | Purpose                                                                   |
 | ---------------------- | ------------------------------------------------------------------------- |
 | `docs/design/`         | Design docs for each Proxmox-node design area (storage, networking, etc.) |
-| `docs/decisions/`      | Architecture Decision Records — point-in-time decisions and reasoning     |
+| `docs/decisions/`      | Architecture Decision Records — current decisions and their reasoning     |
 | `docs/runbooks/`       | Operational procedures                                                    |
 | `docs/inspiration/`    | Original unvetted reference material — not authoritative                  |
 | `docs/control-node.md` | Control node setup and MCP server notes for contributors                  |

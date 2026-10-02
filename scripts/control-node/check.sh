@@ -16,8 +16,9 @@
 #   2. prettier    — formats/checks .json/.md files
 #   3. shellcheck  — lints .sh files for correctness (never mutates)
 #   4. line length — .sh files stay within 80 columns (never mutates)
-#   5. ec          — verifies against .editorconfig (never mutates)
-#   6. bats        — runs tests/ (recursively), if the directory exists
+#   5. ADRs        — docs/decisions/ structure and index (never mutates)
+#   6. ec          — verifies against .editorconfig (never mutates)
+#   7. bats        — runs tests/ (recursively), if the directory exists
 #
 # Runs on the control node. The 80-column limit comes from the Google Shell
 # Style Guide, which neither shfmt nor shellcheck enforces; a tab counts as
@@ -74,6 +75,70 @@ check_line_length() {
 	[[ "${failed}" == false ]]
 }
 
+# check_adrs [dir]
+# Validates the ADR files in <dir> (default docs/decisions) against
+# .clinerules/custom/adr-decisions.md: file name, title number, status,
+# date, section order, non-empty sections, and index links in both
+# directions. Prints one line per problem. Returns 1 if any problem is
+# found.
+check_adrs() {
+	local dir="${1:-docs/decisions}"
+	local failed=false
+	local file base num sections empty index link
+
+	problem() {
+		log::error "ADR: $*"
+		failed=true
+	}
+
+	index="${dir}/README.md"
+	[[ -f "${index}" ]] || problem "${index} is missing"
+
+	for file in "${dir}"/[0-9]*.md; do
+		[[ -f "${file}" ]] || continue
+		base="$(basename "${file}")"
+		num="${base%%-*}"
+
+		[[ "${base}" =~ ^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*\.md$ ]] ||
+			problem "${base}: file name must be NNNN-kebab-case-title.md"
+		head -n 1 "${file}" | grep -qE "^# ${num}\. .+" ||
+			problem "${base}: first line must be '# ${num}. Title'"
+		grep -qE '^Status: (Proposed|Accepted)$' "${file}" ||
+			problem "${base}: needs 'Status: Proposed' or 'Status: Accepted'"
+		grep -qE '^Date: [0-9]{4}-[0-9]{2}-[0-9]{2}$' "${file}" ||
+			problem "${base}: needs 'Date: YYYY-MM-DD'"
+
+		sections="$(grep -E '^## ' "${file}" | tr '\n' '|')"
+		[[ "${sections}" == "## Context|## Decision|## Consequences|" ]] ||
+			problem "${base}: sections must be exactly Context, Decision," \
+				"Consequences, in that order"
+
+		empty="$(awk '
+			function flush() { if (sec != "" && !text) print sec }
+			/^## / { flush(); sec = $0; text = 0; next }
+			sec != "" && /[^[:space:]]/ { text = 1 }
+			END { flush() }
+		' "${file}" | tr '\n' ' ')"
+		[[ -z "${empty}" ]] ||
+			problem "${base}: empty section(s): ${empty}" \
+				"(write 'Not applicable: <reason>.')"
+
+		if [[ -f "${index}" ]] && ! grep -qF "](${base})" "${index}"; then
+			problem "${base}: no link in ${index}"
+		fi
+	done
+
+	if [[ -f "${index}" ]]; then
+		while IFS= read -r link; do
+			[[ -f "${dir}/${link}" ]] ||
+				problem "${index}: link to missing file ${link}"
+		done < <(grep -oE '\]\([0-9]{4}-[^)]*\.md\)' "${index}" |
+			sed -E 's/^\]\(//; s/\)$//')
+	fi
+
+	[[ "${failed}" == false ]]
+}
+
 for tool in shfmt prettier shellcheck ec bats; do
 	if ! command -v "${tool}" >/dev/null 2>&1; then
 		log::error "${tool} not found —" \
@@ -124,6 +189,11 @@ if [[ "${check_mode}" == true ]]; then
 		prettier --check "${staged_fmt[@]}"
 	fi
 
+	if printf '%s\n' "${staged_files[@]}" | grep -q '^docs/decisions/'; then
+		log::info "Checking ADR structure and index..."
+		check_adrs
+	fi
+
 	log::info "Verifying staged files against .editorconfig (ec)..."
 	ec "${staged_files[@]}"
 
@@ -144,6 +214,9 @@ else
 	log::info "Checking line length (max 80 columns)..."
 	mapfile -t all_sh < <(find . -name '*.sh' -not -path './.git/*')
 	check_line_length "${all_sh[@]}"
+
+	log::info "Checking ADR structure and index..."
+	check_adrs
 
 	log::info "Verifying against .editorconfig (ec)..."
 	ec -exclude "${exclude_pattern}"

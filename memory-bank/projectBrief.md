@@ -16,7 +16,7 @@ or workloads. That will be a separate project.
 ## Toolstack
 
 Bash scripting against the Proxmox CLI (`pvesh`, `qm`, `pct`, `pvesm`)
-and/or the REST API. Rationale and revisit conditions:
+and/or the REST API. Rationale:
 [ADR-0002](../docs/decisions/0002-use-bash-and-proxmox-native-tooling.md).
 
 ## Roadmap

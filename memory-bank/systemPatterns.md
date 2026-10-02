@@ -4,7 +4,7 @@
 
 ```text
 docs/
-  decisions/           ADRs (template.md, README.md index, 0001-0004)
+  decisions/           ADRs (README.md index, 0001-0004)
   design/              00-overview.md .. 08-high-availability.md + README.md
   runbooks/            operational procedures
   inspiration/         unvetted reference material
@@ -23,7 +23,11 @@ scripts/
 tests/                 bats-core suite for scripts/lib/*.sh
 .githooks/pre-commit   calls check.sh --check
 memory-bank/           this Memory Bank
-.clinerules/, .agents/ upstream-synced; never edit or reformat
+.clinerules/           instructions/ (copied from GitHub awesome-copilot),
+                       rules/ (copied from Cline's reference repo),
+                       custom/ (written for this project; the only
+                       folder edited by hand)
+.agents/               upstream-synced; never edit or reformat
 ```
 
 ## Design doc structure
