@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# disk.sh — disk/partition inspection helpers for storage host scripts.
+# disk.sh — disk/partition inspection helpers for storage Proxmox-node scripts.
 # Functions only; these only read state or do pure calculations, never
 # change anything.
 [[ -n "${SERVERLAB_LIB_DISK:-}" ]] && return 0
@@ -14,7 +14,8 @@ disk::os_disk() {
 	root_src="$(findmnt -no SOURCE /)"
 	root_pkname="$(lsblk -no PKNAME "${root_src}")"
 	if [[ -z "${root_pkname}" ]]; then
-		log::die "Could not determine the parent disk of root filesystem source '${root_src}'."
+		log::die "Could not determine the parent disk of root filesystem" \
+			"source '${root_src}'."
 	fi
 	printf '/dev/%s\n' "${root_pkname}"
 }
@@ -58,11 +59,13 @@ disk::validate_geometry() {
 	local optimal_io_size="$2"
 
 	if [[ "${alignment_offset}" -ne 0 ]]; then
-		echo "alignment_offset is ${alignment_offset}, not 0 — 1 MiB alignment is not guaranteed safe on this disk"
+		echo "alignment_offset is ${alignment_offset}, not 0 —" \
+			"1 MiB alignment is not guaranteed safe on this disk"
 		return 1
 	fi
 
-	if [[ "${optimal_io_size}" -gt 0 ]] && ((1048576 % optimal_io_size != 0)); then
+	if [[ "${optimal_io_size}" -gt 0 ]] &&
+		((1048576 % optimal_io_size != 0)); then
 		echo "optimal_io_size (${optimal_io_size}) does not evenly divide 1 MiB"
 		return 1
 	fi
@@ -90,7 +93,9 @@ disk::partition_path() {
 disk::next_partnum() {
 	local disk="$1"
 	local max
-	max="$(sgdisk -p "${disk}" | awk '/^ *[0-9]+ / { print $1 }' | sort -n | tail -n1)"
+	max="$(sgdisk -p "${disk}" |
+		awk '/^ *[0-9]+ / { print $1 }' |
+		sort -n | tail -n1)"
 	echo $((${max:-0} + 1))
 }
 

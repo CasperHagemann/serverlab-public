@@ -1,18 +1,18 @@
 # Config
 
-Per-host configuration files read by `scripts/host/*.sh`, so the same
-script works unchanged across hosts — see
+Per-node configuration files read by `scripts/proxmox-node/*.sh`, so the same
+script works unchanged across nodes — see
 [`../scripts/README.md`](../scripts/README.md).
 
 ## Layout
 
 ```text
 config/
-  hosts/
-    <hostname>.env   one file per Proxmox host, named after its hostname
+  proxmox-nodes/
+    <hostname>.env   one file per Proxmox node, named after its hostname
 ```
 
-Scripts default to `config/hosts/$(hostname -f).env` and accept
+Scripts default to `config/proxmox-nodes/$(hostname -f).env` and accept
 `--config <file>` to override.
 
 ## Format

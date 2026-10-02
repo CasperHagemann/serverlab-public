@@ -6,19 +6,19 @@ Documentation is strict and factual: Configuration states what is live,
 plans are in a separate Planned section, reasoning for decisions is in ADRs.
 The repository is considered ready for public release.
 
-## Host state (`pve.kiwik.org`)
+## Proxmox node state (`pve.kiwik.org`)
 
 Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
-- `vmbr1` on `nic1` (general VM) created by `scripts/host/10-network.sh`.
+- `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/10-network.sh`.
 - `local-data` (`nvme0n1p4`, btrfs, ~853 GiB) created by
-  `scripts/host/20-storage.sh`; `local` and `local-btrfs` disabled.
-- Values: `inventory/`, `config/hosts/pve.kiwik.org.env`.
+  `scripts/proxmox-node/20-storage.sh`; `local` and `local-btrfs` disabled.
+- Values: `inventory/`, `config/proxmox-nodes/pve.kiwik.org.env`.
 
 ## Next steps
 
-1. Planned host work is listed in the Planned section of each
+1. Planned Proxmox-node work is listed in the Planned section of each
    `docs/design/` doc (post-install tasks in 02, I/O weighting in 04,
    security, backup, monitoring, HA).
 2. Optional: GitHub Actions workflow running the same checks as a required
@@ -35,17 +35,19 @@ Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 - No "TBD", "stub", or "once hardware arrives" wording. Hardware is
   received and inventory is current.
 - Inventory files hold concrete values only.
-- Use "development environment" (where development happens) and
-  "Proxmox host". Never "workstation".
-- Hidden folders (`.clinerules/`, `.agents/`, `.cline/`) are kept as they are.
+- Use "control node" (where development happens) and
+  "Proxmox node". Never "workstation".
+- Hidden folders (`.agents/`, `.cline/`, and `.clinerules/` except
+  `.clinerules/custom/`) are kept as they are. `.clinerules/custom/` holds
+  project rules written by hand, always active (no frontmatter).
 
 **Scripts and workflow**
 
 - Explicit, non-mutating pre-commit behaviour.
-- No automatic rollback in host scripts; stop and report.
-- No extra packages on the Proxmox host.
+- No automatic rollback in Proxmox-node scripts; stop and report.
+- No extra packages on the Proxmox node.
 - Manual `remote-run.sh` verification (dry-run, decline, `--yes`, re-run) is
-  sufficient; no automated host-test runner.
+  sufficient; no automated Proxmox-node test runner.
 - MCP server versions are not pinned.
 - Show fetched web content collapsed; present only conclusions and relevant
   facts.

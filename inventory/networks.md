@@ -20,9 +20,9 @@ No NIC bonding. Two bridges, each mapped to a single physical NIC:
 
 ## Interface naming
 
-Physical NIC names, recorded per host so scripts can reference this
+Physical NIC names, recorded per node so scripts can reference this
 file/config rather than hardcoding names.
 
-| Host            | Management interface | General VM interface | Notes                                  |
+| Node            | Management interface | General VM interface | Notes                                  |
 | --------------- | -------------------- | -------------------- | -------------------------------------- |
 | `pve.kiwik.org` | `nic0` (`igc`)       | `nic1` (`r8169`)     | See `inventory/hardware.md` for detail |

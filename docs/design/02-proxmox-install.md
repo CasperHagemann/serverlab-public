@@ -10,7 +10,7 @@ Install configuration (hostname, management IP, gateway, DNS, timezone) and post
 
 | Setting       | Value                               |
 | ------------- | ----------------------------------- |
-| Host          | `pve.kiwik.org` (Minisforum MS-A2)  |
+| Node          | `pve.kiwik.org` (Minisforum MS-A2)  |
 | Hostname      | `pve.kiwik.org`                     |
 | Management IP | 192.168.88.101/24 on `nic0`/`vmbr0` |
 | Gateway / DNS | 192.168.88.1                        |
@@ -25,7 +25,7 @@ See [`inventory/ip-plan.md`](../../inventory/ip-plan.md) and [`03-networking.md`
 
 | Item                 | Description                        | Depends on |
 | -------------------- | ---------------------------------- | ---------- |
-| Timezone             | Set host timezone                  | -          |
+| Timezone             | Set node timezone                  | -          |
 | Updates              | Apply package updates              | -          |
 | NTP                  | Time synchronisation configuration | -          |
 | Package repositories | Repository configuration           | -          |

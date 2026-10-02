@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# 10-network.sh — host networking configuration, per
+# 10-network.sh — Proxmox-node networking configuration, per
 # docs/design/03-networking.md. Currently: creates the general VM network
 # bridge (vmbr1) on top of its physical NIC.
 #
@@ -10,14 +10,15 @@
 # Usage:
 #   10-network.sh [--config <file>] [--dry-run] [--yes]
 #
-#   --config <file>  Path to a host config file (default:
-#                     config/hosts/$(hostname -f).env — see config/README.md)
+#   --config <file>  Path to a Proxmox-node config file (default:
+#                     config/proxmox-nodes/$(hostname -f).env;
+#                     see config/README.md)
 #   --dry-run        Show what would change; make no changes
 #   --yes            Skip the confirmation prompt (for non-interactive runs,
 #                     e.g. over `remote-run.sh`)
 #
 # See scripts/README.md for the phase structure this script follows, and
-# docs/decisions/0003-host-script-structure-and-conventions.md for the
+# docs/decisions/0003-proxmox-node-script-structure-and-conventions.md for the
 # reasoning.
 
 set -euo pipefail
@@ -60,7 +61,7 @@ parse_args() {
 	done
 
 	if [[ -z "${config_file}" ]]; then
-		config_file="${_script_dir}/../config/hosts/$(hostname -f).env"
+		config_file="${_script_dir}/../config/proxmox-nodes/$(hostname -f).env"
 	fi
 }
 
@@ -73,24 +74,31 @@ preflight() {
 		local existing_master
 		existing_master="$(net::iface_master "${VM_IFACE}")"
 		if [[ "${existing_master}" == "${VM_BRIDGE}" ]]; then
-			log::info "${VM_BRIDGE} already exists with ${VM_IFACE} attached — nothing to do."
+			log::info "${VM_BRIDGE} already exists with ${VM_IFACE}" \
+				"attached — nothing to do."
 			exit 0
 		fi
-		log::die "${VM_BRIDGE} already exists but ${VM_IFACE} is not its member (master: '${existing_master:-none}'). Refusing to change an existing bridge — resolve manually."
+		log::die "${VM_BRIDGE} already exists but ${VM_IFACE} is not its" \
+			"member (master: '${existing_master:-none}')." \
+			"Refusing to change an existing bridge — resolve manually."
 	fi
 
 	if ! net::iface_exists "${VM_IFACE}"; then
-		log::die "Interface '${VM_IFACE}' not found on this host."
+		log::die "Interface '${VM_IFACE}' not found on this Proxmox node."
 	fi
 
 	local current_master
 	current_master="$(net::iface_master "${VM_IFACE}")"
 	if [[ -n "${current_master}" ]]; then
-		log::die "Interface '${VM_IFACE}' is already a member of '${current_master}' — refusing to reattach it."
+		log::die "Interface '${VM_IFACE}' is already a member of" \
+			"'${current_master}' — refusing to reattach it."
 	fi
 
 	if [[ -e "${INTERFACES_FILE}.new" ]]; then
-		log::die "${INTERFACES_FILE}.new already exists — another change is staged but not applied/reverted. Resolve that first (pvesh get /nodes/$(pve::node)/network, or ifreload -a / rm the file if it's stale)."
+		log::die "${INTERFACES_FILE}.new already exists — another change" \
+			"is staged but not applied/reverted. Resolve that first" \
+			"(pvesh get /nodes/$(pve::node)/network, or ifreload -a /" \
+			"rm the file if it's stale)."
 	fi
 
 	log::info "Pre-flight checks passed."
@@ -99,7 +107,8 @@ preflight() {
 # --- Phase 3: plan / diff / confirm -----------------------------------------
 
 plan_and_confirm() {
-	log::info "Staging: create bridge '${VM_BRIDGE}' on '${VM_IFACE}' (no IP address)."
+	log::info "Staging: create bridge '${VM_BRIDGE}' on '${VM_IFACE}'" \
+		"(no IP address)."
 
 	pve::create "/nodes/$(pve::node)/network" \
 		--iface "${VM_BRIDGE}" \
@@ -112,13 +121,15 @@ plan_and_confirm() {
 	files::diff "${INTERFACES_FILE}" "${INTERFACES_FILE}.new" >&2
 
 	if [[ "${dry_run}" == true ]]; then
-		log::info "--dry-run: discarding the staged change (no changes were applied)."
+		log::info "--dry-run: discarding the staged change" \
+			"(no changes were applied)."
 		pve::revert "/nodes/$(pve::node)/network"
 		exit 0
 	fi
 
 	if ! prompt::confirm "Apply the above change now?" "${auto_yes}"; then
-		log::info "Aborted by user. Discarding the staged change (no changes were applied)."
+		log::info "Aborted by user. Discarding the staged change" \
+			"(no changes were applied)."
 		pve::revert "/nodes/$(pve::node)/network"
 		exit 1
 	fi
@@ -127,11 +138,12 @@ plan_and_confirm() {
 # --- Phase 4/5: backup, apply ------------------------------------------------
 
 report_failure() {
-	log::error "$1 — not rolling back automatically."
+	log::error "$* — not rolling back automatically."
 	log::error "To restore the previous config by hand:"
 	log::error "  cp -p ${backup_path} ${INTERFACES_FILE} && ifreload -a"
 	guards::restore_hangup
-	log::die "Stopped. ${VM_BRIDGE} may be partially configured — resolve manually (see above)."
+	log::die "Stopped. ${VM_BRIDGE} may be partially configured —" \
+		"resolve manually (see above)."
 }
 
 apply_change() {
@@ -147,7 +159,8 @@ apply_change() {
 
 	log::info "Waiting for reload task (${upid}) to finish..."
 	if ! pve::wait_task "${upid}"; then
-		report_failure "Reload task did not finish successfully (failed or timed out)"
+		report_failure "Reload task did not finish successfully" \
+			"(failed or timed out)"
 	fi
 
 	verify_change
@@ -186,6 +199,8 @@ main() {
 	apply_change
 
 	log::info "Done. ${VM_BRIDGE} (${VM_IFACE}) is configured and verified."
+	log::info "Backup: ${backup_path}"
+	log::info "No reboot required."
 }
 
 main "$@"

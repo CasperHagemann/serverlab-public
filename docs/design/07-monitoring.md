@@ -4,7 +4,7 @@
 
 ## Scope
 
-Hardware monitoring (temperatures, fans, disk health), host monitoring (CPU, RAM, storage, network), and monitoring platform.
+Hardware monitoring (temperatures, fans, disk health), node monitoring (CPU, RAM, storage, network), and monitoring platform.
 
 ## Configuration
 
@@ -19,5 +19,5 @@ None.
 | Item                | Description                     | Depends on |
 | ------------------- | ------------------------------- | ---------- |
 | Hardware monitoring | Temperatures, fans, disk health | -          |
-| Host monitoring     | CPU, RAM, storage, network      | -          |
+| Node monitoring     | CPU, RAM, storage, network      | -          |
 | Monitoring platform | Platform selection and alerting | -          |

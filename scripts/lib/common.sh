@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# common.sh — loader for serverlab host-script shared helpers.
+# common.sh — loader for serverlab Proxmox-node script shared helpers.
 #
 # Usage: source this file near the top of a script, after `set -euo pipefail`:
 #   source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"

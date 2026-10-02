@@ -1,6 +1,6 @@
 # Tech Context
 
-## Development environment
+## control node
 
 - **OS:** CachyOS (Arch-based), default shell fish.
 - **IDE:** VS Code. The integrated terminal defaults to `bash` via
@@ -24,7 +24,7 @@
 Install: `sudo pacman -S shfmt shellcheck editorconfig-checker prettier bats github-cli`
 
 `bats` is development-environment only and never installed on Proxmox
-hosts (ADR-0003, `scripts/README.md`). `tests/lib/*.bats` test
+nodes (ADR-0003, `scripts/README.md`). `tests/lib/*.bats` test
 `scripts/lib/*.sh` using stub executables in `tests/fixtures/bin/`
 (`pvesh`, `pvesm`, `sgdisk`). 42 tests. Layout: `tests/README.md`.
 
@@ -36,16 +36,16 @@ hosts (ADR-0003, `scripts/README.md`). `tests/lib/*.bats` test
 | `sequential-thinking` | `npx -y @modelcontextprotocol/server-sequential-thinking` | Step-by-step reasoning                           |
 
 Versions are not pinned. `.cline/mcp.json` mirrors the Cline MCP settings
-and is not read automatically (see `docs/dev-environment.md`).
+and is not read automatically (see `docs/control-node.md`).
 
 ## Setup
 
 ```bash
 git clone <repo>
 cd serverlab
-./scripts/install-hooks.sh   # once per clone
-./scripts/check.sh           # fix mode: format whole repo, run bats
-./scripts/check.sh --check   # staged files only, no mutation (pre-commit)
+./scripts/control-node/install-hooks.sh   # once per clone
+./scripts/control-node/check.sh           # fix mode: format whole repo, run bats
+./scripts/control-node/check.sh --check   # staged files only, no mutation (pre-commit)
 ```
 
 ## Technical constraints

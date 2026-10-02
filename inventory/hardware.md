@@ -6,7 +6,7 @@ Physical hardware used in this lab.
 
 | Hostname        | Role                      | Model            | CPU                          | RAM           | Mgmt (BMC) IP |
 | --------------- | ------------------------- | ---------------- | ---------------------------- | ------------- | ------------- |
-| `pve.kiwik.org` | Proxmox host (bare metal) | Minisforum MS-A2 | AMD Ryzen 9 9955HX (16C/32T) | 29 GiB usable | N/A (no BMC)  |
+| `pve.kiwik.org` | Proxmox node (bare metal) | Minisforum MS-A2 | AMD Ryzen 9 9955HX (16C/32T) | 29 GiB usable | N/A (no BMC)  |
 
 ## `pve.kiwik.org` (MS-A2)
 
