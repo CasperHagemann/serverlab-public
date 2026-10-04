@@ -16,9 +16,11 @@ None. Local backups on `local-data` are described in [`04-storage.md`](04-storag
 
 > Not implemented.
 
-| Item                  | Description                                           | Depends on            |
-| --------------------- | ----------------------------------------------------- | --------------------- |
-| Backup strategy       | 3-2-1 rule                                            | -                     |
-| Proxmox Backup Server | PBS on a second host (see Backups in `04-storage.md`) | Second host (phase 2) |
-| Retention policy      | Retention periods                                     | -                     |
-| Offsite copies        | Copy outside the site                                 | -                     |
+| Item                      | Description                                                                 | Depends on            |
+| ------------------------- | --------------------------------------------------------------------------- | --------------------- |
+| Backup strategy           | 3-2-1 rule                                                                  | -                     |
+| Proxmox Backup Server     | PBS on a second host (see Backups in `04-storage.md`)                       | Second host (phase 2) |
+| Retention policy          | Retention periods                                                           | -                     |
+| Offsite copies            | Copy outside the site                                                       | -                     |
+| Guest backups             | Scheduled backups of VMs and containers (`vzdump` or Proxmox Backup Server) | -                     |
+| Node configuration backup | Backup of the node and cluster configuration (`/etc/pve`)                   | -                     |
