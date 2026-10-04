@@ -9,7 +9,7 @@ is live and a separate Planned section for what is not implemented.
 | --- | --------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------- |
 | 00  | [Overview](00-overview.md)                                | Overall layered architecture and how the design docs map to it                    | Not started |
 | 01  | [Hardware & Firmware](01-hardware-firmware.md)            | Hardware selection, firmware/BIOS configuration                                   | Not started |
-| 02  | [Proxmox Install](02-proxmox-install.md)                  | Install and post-install host configuration (hostname, IP, time zone, NTP, repos) | Partial     |
+| 02  | [Proxmox Install](02-proxmox-install.md)                  | Install and post-install host configuration (hostname, IP, time zone, NTP, repos) | Implemented |
 | 03  | [Networking](03-networking.md)                            | Management network, VLANs, Linux bridges, bonding                                 | Implemented |
 | 04  | [Storage](04-storage.md)                                  | Storage pools/layout for the Proxmox node                                         | Implemented |
 | 05  | [Security & Access](05-security-access.md)                | Access control, hardening, authentication                                         | Not started |

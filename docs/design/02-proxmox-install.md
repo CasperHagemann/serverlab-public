@@ -4,7 +4,7 @@
 
 ## Scope
 
-Install configuration (hostname, management IP, gateway, DNS, timezone) and post-install tasks (updates, NTP, repositories).
+Install configuration (hostname, management IP, gateway, DNS, timezone) and post-install tasks (NTP, package repositories).
 
 ## Configuration
 
@@ -37,9 +37,24 @@ The node uses exactly the servers listed in `NTP_SERVERS` (an array in the node 
 | Empty `()`    | Reverts the node to the OS default chrony configuration                |
 | Unset         | The script stops with an error (a typo cannot silently reset the node) |
 
+### Package repositories
+
+No Proxmox subscription is used, so both enterprise repositories are always disabled (never deleted). Two settings in the node config choose what replaces them:
+
+| Setting           | Value               | Effect                                                                                      |
+| ----------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| `PVE_REPOSITORY`  | `"no-subscription"` | `pve-enterprise.sources` disabled; `proxmox.sources` (pve-no-subscription) written          |
+| `PVE_REPOSITORY`  | `""`                | Restores the stock `pve-enterprise.sources`; removes `proxmox.sources`                      |
+| `CEPH_REPOSITORY` | `"disabled"`        | `ceph.sources` disabled; no Ceph repository added (no Ceph on this node)                    |
+| `CEPH_REPOSITORY` | `"no-subscription"` | `ceph.sources` disabled; `ceph-no-subscription.sources` written (for a future Ceph cluster) |
+| `CEPH_REPOSITORY` | `""`                | Restores the stock `ceph.sources`; removes `ceph-no-subscription.sources`                   |
+| Either unset      |                     | The script stops with an error (a typo cannot silently change the node)                     |
+
+`pve.kiwik.org`: `PVE_REPOSITORY="no-subscription"`, `CEPH_REPOSITORY="disabled"`. `debian.sources` is not touched.
+
 ## Implementation
 
-[`scripts/proxmox-node/05-proxmox-install.sh`](../../scripts/proxmox-node/05-proxmox-install.sh) runs a time zone step and an NTP step. Each step shows its plan; one confirmation covers all steps with changes, and only steps with changes are applied.
+[`scripts/proxmox-node/05-proxmox-install.sh`](../../scripts/proxmox-node/05-proxmox-install.sh) runs a time zone step, an NTP step and a package repositories step. Each step shows its plan; one confirmation covers all steps with changes, and only steps with changes are applied.
 
 Time zone:
 
@@ -58,6 +73,14 @@ NTP (chrony):
 - Requires a `sourcedir /etc/chrony/sources.d` line in the base config; otherwise it stops.
 - Backs up changed files with a timestamp, restarts chrony, and verifies: the files match, chrony is active, and it has exactly as many sources as `NTP_SERVERS`. Failing to synchronise within about a minute only warns. On failure it prints manual undo steps and does not roll back.
 
+Package repositories (deb822 files in `/etc/apt/sources.list.d/`):
+
+- Disabling adds `Enabled: no` to the stock enterprise file; the file is kept.
+- The no-subscription files use the suite and keyring of the stock enterprise file. The Ceph no-subscription URI is derived from the stock `ceph.sources` URI (`enterprise.proxmox.com` to `download.proxmox.com`), so the Ceph release is never hardcoded.
+- Before the first change, saves each stock enterprise file in `/etc/apt/sources.list.orig/`. It is never overwritten and is the base for later runs and for the revert. Timestamped backups go in the same directory, because apt reports stray files in `sources.list.d`.
+- Stops if the stock file is missing, its suite is not this OS release, its keyring does not exist, or (for the Ceph no-subscription value) its URI is not a Proxmox Ceph enterprise URI.
+- Verifies the files match, then runs `apt-get update`: any `E:`/`Err:` line fails; `W:` lines only warn. After a revert an enterprise repository is enabled again and returns 401 without a subscription key, so errors that mention `enterprise.proxmox.com` only warn, and only while such a repository is enabled. On failure it prints manual undo steps and does not roll back.
+
 Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0003](../decisions/0003-proxmox-node-script-structure-and-conventions.md).
 
 ## Verification
@@ -67,15 +90,5 @@ Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0003](
 | `timedatectl`                     | `Time zone: Europe/Copenhagen`, `RTC in local TZ: no` |
 | `chronyc sources`                 | Lists only the servers in `NTP_SERVERS`               |
 | `chronyc tracking`                | `Leap status : Normal`, small offset                  |
+| `apt-get update`                  | No errors; no enterprise repository contacted         |
 | `05-proxmox-install.sh --dry-run` | Reports "Nothing to do."                              |
-
----
-
-## Planned
-
-> Not implemented.
-
-| Item                 | Description              | Depends on |
-| -------------------- | ------------------------ | ---------- |
-| Updates              | Apply package updates    | -          |
-| Package repositories | Repository configuration | -          |

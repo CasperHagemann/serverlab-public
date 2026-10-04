@@ -2,15 +2,15 @@
 
 ## Implemented
 
-| Area                   | State                                                                                                                                           |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Documentation          | README, ADR-0001 to ADR-0004, `docs/design/` 00-08, `inventory/`, `docs/control-node.md`                                                        |
-| Toolchain              | `scripts/control-node/check.sh` (fix and `--check` modes), pre-commit hook, bats suite (58 tests)                                               |
-| Proxmox-node scripting | `scripts/lib/` (log, guards, prompt, files, config, pve, net, disk), `scripts/remote-run.sh`, ADR-0003                                          |
-| Networking             | `10-network.sh` applied on `pve.kiwik.org`: `vmbr1` on `nic1`                                                                                   |
-| Storage                | `20-storage.sh` applied: `local-data` btrfs (`nvme0n1p4`, ~853 GiB), OS storages disabled, test VM booted                                       |
-| Post-install           | `05-proxmox-install.sh`: `TIMEZONE` (empty reverts via `/etc/timezone.orig`), NTP (chrony, `NTP_SERVERS`; empty reverts via `chrony.conf.orig`) |
-| MCP servers            | `fetch`, `sequential-thinking` (see `.cline/mcp.json`)                                                                                          |
+| Area                   | State                                                                                                                                                                                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Documentation          | README, ADR-0001 to ADR-0004, `docs/design/` 00-08, `inventory/`, `docs/control-node.md`                                                                                                                                                                                                                                        |
+| Toolchain              | `scripts/control-node/check.sh` (fix and `--check` modes), pre-commit hook, bats suite (58 tests)                                                                                                                                                                                                                               |
+| Proxmox-node scripting | `scripts/lib/` (log, guards, prompt, files, config, pve, net, disk), `scripts/remote-run.sh`, ADR-0003                                                                                                                                                                                                                          |
+| Networking             | `10-network.sh` applied on `pve.kiwik.org`: `vmbr1` on `nic1`                                                                                                                                                                                                                                                                   |
+| Storage                | `20-storage.sh` applied: `local-data` btrfs (`nvme0n1p4`, ~853 GiB), OS storages disabled, test VM booted                                                                                                                                                                                                                       |
+| Post-install           | `05-proxmox-install.sh`: `TIMEZONE` (empty reverts via `/etc/timezone.orig`), NTP (chrony, `NTP_SERVERS`; empty reverts via `chrony.conf.orig`), APT repositories (`PVE_REPOSITORY`, `CEPH_REPOSITORY`; enterprise repos disabled; stock files in `/etc/apt/sources.list.orig/`; applied, re-run and revert tested on the node) |
+| MCP servers            | `fetch`, `sequential-thinking` (see `.cline/mcp.json`)                                                                                                                                                                                                                                                                          |
 
 ## Planned
 

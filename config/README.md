@@ -23,6 +23,19 @@ no command substitution, variable expansion, or control flow. `config::load` (in
 [`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
 else before sourcing the file.
 
+## Post-install settings
+
+Read by `scripts/proxmox-node/05-proxmox-install.sh`; all must be set (an
+empty value has a defined meaning, a missing line stops the script). Values and
+meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-install.md).
+
+| Key               | Type   | Example               |
+| ----------------- | ------ | --------------------- |
+| `TIMEZONE`        | string | `"Europe/Copenhagen"` |
+| `NTP_SERVERS`     | array  | `("0.pool.ntp.org")`  |
+| `PVE_REPOSITORY`  | string | `"no-subscription"`   |
+| `CEPH_REPOSITORY` | string | `"disabled"`          |
+
 ## Secrets
 
 Never put passwords, API tokens, or certificates in these files. This

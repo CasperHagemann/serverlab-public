@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # 05-proxmox-install.sh — Proxmox-node post-install configuration, per
-# docs/design/02-proxmox-install.md. Currently: time zone and NTP (chrony).
+# docs/design/02-proxmox-install.md. Currently: time zone, NTP (chrony) and
+# package repositories.
 #
 # TIMEZONE (node config) is the IANA zone name to set. An empty value reverts
 # to the zone saved in /etc/timezone.orig before the first change.
@@ -10,6 +11,13 @@
 # node uses; the default chrony pool/server lines are disabled. An empty
 # array reverts to the OS default chrony configuration, which is kept in
 # /etc/chrony/chrony.conf.orig the first time this script changes anything.
+#
+# PVE_REPOSITORY and CEPH_REPOSITORY (node config) choose the APT
+# repositories. The enterprise repositories are always disabled (they need a
+# subscription key) and never deleted. PVE_REPOSITORY: "no-subscription" or ""
+# (revert). CEPH_REPOSITORY: "disabled", "no-subscription" or "" (revert).
+# The stock files are kept in /etc/apt/sources.list.orig the first time this
+# script changes them.
 #
 # Each step shows its plan; one confirmation covers all steps with changes.
 #
@@ -40,6 +48,15 @@ readonly CHRONY_ORIG="/etc/chrony/chrony.conf.orig"
 readonly CHRONY_SOURCES_DIR="/etc/chrony/sources.d"
 readonly CHRONY_SOURCES="${CHRONY_SOURCES_DIR}/ntp-servers.sources"
 readonly TZ_ORIG="/etc/timezone.orig"
+readonly APT_SOURCES_DIR="/etc/apt/sources.list.d"
+# Stock files and timestamped backups live here, not in sources.list.d, where
+# apt would print a notice for every file with an unknown extension.
+readonly APT_ORIG_DIR="/etc/apt/sources.list.orig"
+readonly PVE_ENTERPRISE="${APT_SOURCES_DIR}/pve-enterprise.sources"
+readonly PVE_NOSUB="${APT_SOURCES_DIR}/proxmox.sources"
+readonly PVE_NOSUB_URI="http://download.proxmox.com/debian/pve"
+readonly CEPH_ENTERPRISE="${APT_SOURCES_DIR}/ceph.sources"
+readonly CEPH_NOSUB="${APT_SOURCES_DIR}/ceph-no-subscription.sources"
 readonly LOCK_FILE="/run/serverlab/05-proxmox-install.lock"
 
 dry_run=false
@@ -59,6 +76,12 @@ conf_changed=false
 sources_changed=false
 backup_conf=""
 backup_sources=""
+
+# Package repositories step state. repo_dest[i] is written with the content
+# of repo_src[i], or removed if repo_src[i] is empty.
+repo_dest=()
+repo_src=()
+repo_backups=()
 
 cleanup() {
 	if [[ -n "${tmp_dir}" ]]; then
@@ -153,10 +176,87 @@ tz_preflight() {
 	fi
 }
 
+repo_orig_path() {
+	printf '%s/%s\n' "${APT_ORIG_DIR}" "$(basename "$1")"
+}
+
+# The file an enterprise file's content is derived from: the saved stock
+# file if we already made one, otherwise the current file (which may not
+# exist).
+repo_base() {
+	local orig
+	orig="$(repo_orig_path "$1")"
+	if [[ -e "${orig}" ]]; then
+		printf '%s\n' "${orig}"
+	else
+		printf '%s\n' "$1"
+	fi
+}
+
+# repo_check_base <enterprise-file> <setting-name>
+# Stops unless the stock enterprise file has what a no-subscription file is
+# derived from: this OS release as the suite, and an existing keyring.
+repo_check_base() {
+	local base
+	local codename
+	local suite
+	local keyring
+	base="$(repo_base "$1")"
+
+	if [[ ! -f "${base}" ]]; then
+		log::die "${base} not found — refusing to guess the repository" \
+			"settings for ${2}."
+	fi
+
+	codename="$(sed -n 's/^VERSION_CODENAME=//p' /etc/os-release | tr -d '"')"
+	suite="$(apt::field "${base}" Suites)"
+	if [[ -z "${codename}" || "${suite}" != "${codename}" ]]; then
+		log::die "${base} has suite '${suite}', but this OS is" \
+			"'${codename}' — refusing to continue (${2})."
+	fi
+
+	keyring="$(apt::field "${base}" Signed-By)"
+	if [[ ! -f "${keyring}" ]]; then
+		log::die "Keyring '${keyring}' (from ${base}) does not exist."
+	fi
+}
+
+repo_preflight() {
+	case "${PVE_REPOSITORY}" in
+	no-subscription)
+		repo_check_base "${PVE_ENTERPRISE}" PVE_REPOSITORY
+		;;
+	"") ;;
+	*)
+		log::die "PVE_REPOSITORY must be \"no-subscription\" or empty" \
+			"(got '${PVE_REPOSITORY}')."
+		;;
+	esac
+
+	case "${CEPH_REPOSITORY}" in
+	no-subscription)
+		repo_check_base "${CEPH_ENTERPRISE}" CEPH_REPOSITORY
+		if ! apt::ceph_nosub_uri "$(apt::field \
+			"$(repo_base "${CEPH_ENTERPRISE}")" URIs)" >/dev/null; then
+			log::die "$(repo_base "${CEPH_ENTERPRISE}") is not a Proxmox" \
+				"Ceph enterprise repository — refusing to guess the" \
+				"no-subscription one."
+		fi
+		;;
+	disabled | "") ;;
+	*)
+		log::die "CEPH_REPOSITORY must be \"disabled\"," \
+			"\"no-subscription\" or empty (got '${CEPH_REPOSITORY}')."
+		;;
+	esac
+}
+
 preflight() {
-	log::info "Checking current time zone and NTP (chrony) state..."
+	log::info "Checking current time zone, NTP (chrony) and package" \
+		"repository state..."
 	tz_preflight
 	ntp_preflight
+	repo_preflight
 	log::info "Pre-flight checks passed."
 }
 
@@ -238,12 +338,125 @@ ntp_changed() {
 	[[ "${conf_changed}" == true || "${sources_changed}" == true ]]
 }
 
+# repo_stage <dest> <staged-file|"">
+# Records <dest> as changed if it differs from the staged content (or, with
+# an empty staged file, if it exists and should be removed).
+repo_stage() {
+	local dest="$1"
+	local src="$2"
+
+	if [[ -n "${src}" ]]; then
+		if [[ -e "${dest}" ]] && cmp -s "${dest}" "${src}"; then
+			return 0
+		fi
+	elif [[ ! -e "${dest}" ]]; then
+		return 0
+	fi
+
+	repo_dest+=("${dest}")
+	repo_src+=("${src}")
+}
+
+# repo_stage_enterprise <enterprise-file> <disable: true|false>
+# Disabling stages the base file with `Enabled: no`; otherwise the saved
+# stock file (if there is one) is restored.
+repo_stage_enterprise() {
+	local file="$1"
+	local base
+	local staged
+	base="$(repo_base "${file}")"
+
+	if [[ "$2" == true ]]; then
+		if [[ ! -f "${base}" ]]; then
+			return 0
+		fi
+		staged="${tmp_dir}/$(basename "${file}")"
+		apt::disable_source "${base}" >"${staged}"
+		repo_stage "${file}" "${staged}"
+	elif [[ -e "$(repo_orig_path "${file}")" ]]; then
+		repo_stage "${file}" "$(repo_orig_path "${file}")"
+	fi
+}
+
+# repo_stage_nosub <dest> <enterprise-file> <uri> <component>
+# Stages a no-subscription file using the suite and keyring of the stock
+# enterprise file.
+repo_stage_nosub() {
+	local dest="$1"
+	local base
+	local staged
+	base="$(repo_base "$2")"
+	staged="${tmp_dir}/$(basename "${dest}")"
+
+	apt::render_source "$3" "$(apt::field "${base}" Suites)" "$4" \
+		"$(apt::field "${base}" Signed-By)" >"${staged}"
+	repo_stage "${dest}" "${staged}"
+}
+
+repo_plan() {
+	local uri
+	local i
+
+	if [[ "${PVE_REPOSITORY}" == "no-subscription" ]]; then
+		repo_stage_enterprise "${PVE_ENTERPRISE}" true
+		repo_stage_nosub "${PVE_NOSUB}" "${PVE_ENTERPRISE}" \
+			"${PVE_NOSUB_URI}" pve-no-subscription
+	else
+		repo_stage_enterprise "${PVE_ENTERPRISE}" false
+		repo_stage "${PVE_NOSUB}" ""
+	fi
+
+	case "${CEPH_REPOSITORY}" in
+	disabled)
+		repo_stage_enterprise "${CEPH_ENTERPRISE}" true
+		repo_stage "${CEPH_NOSUB}" ""
+		;;
+	no-subscription)
+		repo_stage_enterprise "${CEPH_ENTERPRISE}" true
+		uri="$(apt::ceph_nosub_uri "$(apt::field \
+			"$(repo_base "${CEPH_ENTERPRISE}")" URIs)")"
+		repo_stage_nosub "${CEPH_NOSUB}" "${CEPH_ENTERPRISE}" \
+			"${uri}" no-subscription
+		;;
+	*)
+		repo_stage_enterprise "${CEPH_ENTERPRISE}" false
+		repo_stage "${CEPH_NOSUB}" ""
+		;;
+	esac
+
+	if ! repo_changed; then
+		log::info "Package repositories: configuration already matches."
+		return 0
+	fi
+
+	log::info "Staging: package repositories (PVE: ${PVE_REPOSITORY:-revert}," \
+		"Ceph: ${CEPH_REPOSITORY:-revert})"
+	for i in "${!repo_dest[@]}"; do
+		if [[ -z "${repo_src[i]}" ]]; then
+			log::info "Staged: remove ${repo_dest[i]}"
+			continue
+		fi
+		log::info "Staged diff (${repo_dest[i]}):"
+		if [[ -e "${repo_dest[i]}" ]]; then
+			files::diff "${repo_dest[i]}" "${repo_src[i]}" >&2
+		else
+			files::diff /dev/null "${repo_src[i]}" >&2
+		fi
+	done
+}
+
+repo_changed() {
+	[[ "${#repo_dest[@]}" -gt 0 ]]
+}
+
 plan_and_confirm() {
 	tmp_dir="$(mktemp -d)"
 	tz_plan
 	ntp_plan
+	repo_plan
 
-	if [[ "${tz_changed}" == false ]] && ! ntp_changed; then
+	if [[ "${tz_changed}" == false ]] && ! ntp_changed &&
+		! repo_changed; then
 		log::info "Nothing to do."
 		exit 0
 	fi
@@ -309,12 +522,135 @@ tz_apply() {
 	log::info "Verified: time zone is ${tz_target}."
 }
 
+repo_report_failure() {
+	local i
+	log::error "$* — not rolling back automatically."
+	log::error "To restore the previous repository files by hand:"
+	for i in "${!repo_dest[@]}"; do
+		if [[ -n "${repo_backups[i]:-}" ]]; then
+			log::error "  cp -p ${repo_backups[i]} ${repo_dest[i]}"
+		else
+			log::error "  rm -f ${repo_dest[i]}"
+		fi
+	done
+	log::error "  apt-get update"
+	guards::restore_hangup
+	log::die "Stopped. The package repositories may be partially" \
+		"configured — resolve manually (see above)."
+}
+
+repo_apply() {
+	local i
+	local dest
+	local orig
+	local backup
+	local timestamp
+	timestamp="$(date +%Y%m%d%H%M%S)"
+	mkdir -p "${APT_ORIG_DIR}"
+
+	for i in "${!repo_dest[@]}"; do
+		dest="${repo_dest[i]}"
+		repo_backups[i]=""
+		if [[ ! -e "${dest}" ]]; then
+			continue
+		fi
+
+		orig="$(repo_orig_path "${dest}")"
+		if [[ ! -e "${orig}" && ("${dest}" == "${PVE_ENTERPRISE}" ||
+			"${dest}" == "${CEPH_ENTERPRISE}") ]]; then
+			cp -p "${dest}" "${orig}"
+			log::info "Saved the stock file as ${orig}"
+		fi
+
+		backup="${APT_ORIG_DIR}/$(basename "${dest}").bak.${timestamp}"
+		cp -p "${dest}" "${backup}"
+		repo_backups[i]="${backup}"
+		log::info "Backed up ${dest} to ${backup}"
+	done
+
+	guards::ignore_hangup
+	log::info "Applying package repository changes..."
+	for i in "${!repo_dest[@]}"; do
+		dest="${repo_dest[i]}"
+		if [[ -n "${repo_src[i]}" ]]; then
+			install -m 644 "${repo_src[i]}" "${dest}" ||
+				repo_report_failure "Writing ${dest} failed"
+		else
+			rm -f "${dest}" ||
+				repo_report_failure "Removing ${dest} failed"
+		fi
+	done
+
+	repo_verify
+	guards::restore_hangup
+}
+
+# Returns 0 if an enterprise repository file exists and is not disabled.
+repo_enterprise_enabled() {
+	local file
+	for file in "${PVE_ENTERPRISE}" "${CEPH_ENTERPRISE}"; do
+		if [[ -e "${file}" ]] && ! apt::is_disabled "${file}"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+repo_verify() {
+	local i
+	local output
+	local errors
+	local unexpected
+	local status=0
+	log::info "Verifying package repositories..."
+
+	for i in "${!repo_dest[@]}"; do
+		if [[ -n "${repo_src[i]}" ]]; then
+			if ! cmp -s "${repo_dest[i]}" "${repo_src[i]}"; then
+				repo_report_failure "${repo_dest[i]} does not match the" \
+					"intended content"
+			fi
+		elif [[ -e "${repo_dest[i]}" ]]; then
+			repo_report_failure "${repo_dest[i]} still exists"
+		fi
+	done
+
+	# Only refreshes the package lists; nothing is installed or upgraded.
+	log::info "Running 'apt-get update' to check the repositories..."
+	output="$(LC_ALL=C apt-get update 2>&1)" || status=$?
+	printf '%s\n' "${output}" >&2
+	errors="$(apt::error_lines <<<"${output}")"
+	# An enabled enterprise repository fails with 401 without a subscription
+	# key (expected after a revert), so those errors only warn.
+	if repo_enterprise_enabled; then
+		unexpected="$(grep -v 'enterprise\.proxmox\.com' <<<"${errors}" ||
+			true)"
+	else
+		unexpected="${errors}"
+	fi
+	if [[ -n "${unexpected}" ]] ||
+		[[ "${status}" -ne 0 && -z "${errors}" ]]; then
+		repo_report_failure "'apt-get update' reported errors"
+	fi
+	if [[ "${errors}" != "${unexpected}" ]]; then
+		log::warn "An enabled enterprise repository returned errors." \
+			"It needs a subscription key; this is expected after a revert."
+	fi
+	if grep -q '^W:' <<<"${output}"; then
+		log::warn "'apt-get update' printed warnings (see above)."
+	fi
+	log::info "Verified: package repositories are as intended."
+}
+
 apply_change() {
 	if [[ "${tz_changed}" == true ]]; then
 		tz_apply
 	fi
 	if ntp_changed; then
 		ntp_apply
+	fi
+	if repo_changed; then
+		repo_apply
 	fi
 }
 
@@ -422,7 +758,7 @@ main() {
 
 	guards::require_root
 	guards::require_proxmox
-	guards::require_cmd chronyc systemctl timedatectl
+	guards::require_cmd chronyc systemctl timedatectl apt-get
 	guards::acquire_lock "${LOCK_FILE}"
 
 	if [[ -z "${SERVERLAB_BUNDLED:-}" ]]; then
@@ -430,12 +766,14 @@ main() {
 	fi
 	config::require_declared TIMEZONE
 	config::require_array NTP_SERVERS
+	config::require_declared PVE_REPOSITORY CEPH_REPOSITORY
 
 	preflight
 	plan_and_confirm
 	apply_change
 
-	log::info "Done. Time zone and NTP are configured and verified."
+	log::info "Done. Time zone, NTP and package repositories are configured" \
+		"and verified."
 	if [[ -n "${backup_conf}" ]]; then
 		log::info "Backup: ${backup_conf}"
 	fi
