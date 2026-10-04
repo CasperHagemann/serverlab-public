@@ -24,7 +24,7 @@ Proxmox VE 9.2 (Debian 13 trixie).
 ## Next steps
 
 1. Planned Proxmox-node work is listed in the Planned section of each
-   `docs/design/` doc (I/O weighting in 04, security, backup, monitoring,
+   `docs/design/` doc (resource priority in 09, security, backup, monitoring,
    HA). 02 Proxmox Install has nothing planned.
 2. Optional: GitHub Actions workflow running the same checks as a required
    PR status check.
