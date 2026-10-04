@@ -17,8 +17,9 @@ Scripts default to `config/proxmox-nodes/$(hostname -f).env` and accept
 
 ## Format
 
-Plain `KEY=value` lines and `#` comments only — no command substitution,
-variable expansion, or control flow. `config::load` (in
+Plain `KEY=value` lines, single-line arrays of quoted plain words
+(`KEY=("a.example" "b.example")`, `KEY=()` for empty), and `#` comments only —
+no command substitution, variable expansion, or control flow. `config::load` (in
 [`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
 else before sourcing the file.
 

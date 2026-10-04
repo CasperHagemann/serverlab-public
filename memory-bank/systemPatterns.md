@@ -18,7 +18,7 @@ scripts/
   lib/                 shared helpers by topic (log, guards, prompt, files,
                        config, pve, net, disk); loaded via common.sh
   proxmox-node/        scripts that run on the Proxmox node
-                       (10-network.sh, 20-storage.sh)
+                       (05-proxmox-install.sh, 10-network.sh, 20-storage.sh)
   remote-run.sh        run a proxmox-node script on the Proxmox node over SSH
 tests/                 bats-core suite for scripts/lib/*.sh
 .githooks/pre-commit   calls check.sh --check

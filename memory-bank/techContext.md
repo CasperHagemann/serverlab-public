@@ -10,6 +10,13 @@
 - **Packages:** `pacman` (no AUR) for project tooling. MCP servers run via
   `uvx`/`npx` (see below).
 
+## Proxmox node
+
+- **Proxmox VE 9.2**, based on **Debian 13 (trixie)**. Source of truth:
+  `inventory/hardware.md` (Software). Use documentation, package names, and
+  config paths for this version, not for older releases (8.x / bookworm).
+- Docs: <https://pve.proxmox.com/pve-docs/> (9.x).
+
 ## Tools
 
 | Tool         | Package                | Purpose                                          | Auto-fixes?       |
@@ -26,7 +33,7 @@ Install: `sudo pacman -S shfmt shellcheck editorconfig-checker prettier bats git
 `bats` is development-environment only and never installed on Proxmox
 nodes (ADR-0003, `scripts/README.md`). `tests/lib/*.bats` test
 `scripts/lib/*.sh` using stub executables in `tests/fixtures/bin/`
-(`pvesh`, `pvesm`, `sgdisk`). 42 tests. Layout: `tests/README.md`.
+(`pvesh`, `pvesm`, `sgdisk`). 51 tests. Layout: `tests/README.md`.
 
 ## MCP servers
 

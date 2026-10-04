@@ -9,6 +9,7 @@ The repository is considered ready for public release.
 ## Proxmox node state (`pve.kiwik.org`)
 
 Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
+Proxmox VE 9.2 (Debian 13 trixie).
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
 - `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/10-network.sh`.

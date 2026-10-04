@@ -29,5 +29,7 @@ source "${_serverlab_lib_dir}/pve.sh"
 source "${_serverlab_lib_dir}/net.sh"
 # shellcheck source=scripts/lib/disk.sh
 source "${_serverlab_lib_dir}/disk.sh"
+# shellcheck source=scripts/lib/ntp.sh
+source "${_serverlab_lib_dir}/ntp.sh"
 
 unset _serverlab_lib_dir
