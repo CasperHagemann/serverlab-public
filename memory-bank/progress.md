@@ -18,7 +18,7 @@
 | ------------------------- | ------------------------------------------------------------- |
 | Post-install tasks        | `docs/design/02-proxmox-install.md` (updates, repos)          |
 | Fair I/O sharing          | `docs/design/04-storage.md` (cgroup v2, BFQ)                  |
-| Backups (PBS)             | `docs/design/04-storage.md`, `06-backup-recovery.md`          |
+| Backups (PBS)             | `docs/design/06-backup-recovery.md`                           |
 | Security and access       | `docs/design/05-security-access.md`                           |
 | Monitoring                | `docs/design/07-monitoring.md`                                |
 | Clustering / HA           | `docs/design/08-high-availability.md` (phase 2)               |
