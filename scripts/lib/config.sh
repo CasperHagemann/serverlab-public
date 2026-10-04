@@ -59,3 +59,16 @@ config::require_array() {
 		fi
 	done
 }
+
+# config::require_declared <variable-name> [variable-name...]
+# Aborts if any of the named variables is not declared at all. Unlike
+# config::require, an empty value is allowed (scripts give it a meaning,
+# e.g. "revert to the saved original"), so a missing line is still caught.
+config::require_declared() {
+	local var
+	for var in "$@"; do
+		if ! declare -p "${var}" >/dev/null 2>&1; then
+			log::die "Required value '${var}' is not set (config file)."
+		fi
+	done
+}

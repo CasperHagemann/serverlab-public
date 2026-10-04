@@ -102,3 +102,16 @@ setup() {
 	[ "$status" -eq 1 ]
 	[[ "$output" == *"MISSING_ARR"* ]]
 }
+
+@test "config::require_declared passes for a set but empty variable" {
+	EMPTY_DECL=""
+	run config::require_declared EMPTY_DECL
+	[ "$status" -eq 0 ]
+}
+
+@test "config::require_declared dies for an undeclared variable" {
+	unset MISSING_DECL
+	run config::require_declared MISSING_DECL
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"MISSING_DECL"* ]]
+}

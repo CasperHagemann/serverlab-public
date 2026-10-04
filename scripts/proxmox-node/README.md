@@ -13,7 +13,7 @@ no hardcoded environment values, phase structure).
 
 | Script                  | Purpose                                                                |
 | ----------------------- | ---------------------------------------------------------------------- |
-| `05-proxmox-install.sh` | Proxmox-node post-install: NTP (chrony) servers from `NTP_SERVERS`     |
+| `05-proxmox-install.sh` | Proxmox-node post-install: time zone and NTP (chrony) servers          |
 | `10-network.sh`         | Proxmox-node networking: creates the general VM network bridge `vmbr1` |
 | `20-storage.sh`         | Proxmox-node storage: creates the `local-data` btrfs partition/storage |
 

@@ -17,6 +17,16 @@ Install configuration (hostname, management IP, gateway, DNS, timezone) and post
 
 See [`inventory/ip-plan.md`](../../inventory/ip-plan.md) and [`03-networking.md`](03-networking.md).
 
+### Time zone
+
+`TIMEZONE` (node config, `config/proxmox-nodes/<hostname>.env`) is an IANA zone name. The zone follows daylight saving time automatically.
+
+| Setting    | Value                                                                     |
+| ---------- | ------------------------------------------------------------------------- |
+| `TIMEZONE` | `Europe/Copenhagen`                                                       |
+| Empty `""` | Reverts to the zone saved in `/etc/timezone.orig` before the first change |
+| Unset      | The script stops with an error (a typo cannot silently change the node)   |
+
 ### NTP
 
 The node uses exactly the servers listed in `NTP_SERVERS` (an array in the node config, `config/proxmox-nodes/<hostname>.env`):
@@ -29,7 +39,17 @@ The node uses exactly the servers listed in `NTP_SERVERS` (an array in the node 
 
 ## Implementation
 
-[`scripts/proxmox-node/05-proxmox-install.sh`](../../scripts/proxmox-node/05-proxmox-install.sh) configures chrony:
+[`scripts/proxmox-node/05-proxmox-install.sh`](../../scripts/proxmox-node/05-proxmox-install.sh) runs a time zone step and an NTP step. Each step shows its plan; one confirmation covers all steps with changes, and only steps with changes are applied.
+
+Time zone:
+
+- Sets the zone with `pvesh set /nodes/<node>/time --timezone <zone>`.
+- Before the first change, saves the previous zone name as `/etc/timezone.orig`. It is never overwritten.
+- With an empty `TIMEZONE`, sets the zone saved in `/etc/timezone.orig`; if the file does not exist, nothing is changed.
+- Stops if the zone does not exist under `/usr/share/zoneinfo`, or if the hardware clock is set to local time (`timedatectl set-local-rtc 0` sets it to UTC).
+- Verifies the zone and that the hardware clock is UTC. On failure it prints the previous zone and the restore command, and does not roll back.
+
+NTP (chrony):
 
 - Writes `/etc/chrony/sources.d/ntp-servers.sources` with one `server <name> iburst` line per entry.
 - Comments out the active `pool`/`server` lines and `sourcedir /run/chrony-dhcp` in `/etc/chrony/chrony.conf`, so only the listed servers are used (no DHCP-provided servers).
@@ -42,11 +62,12 @@ Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0003](
 
 ## Verification
 
-| Check                             | Expected result                             |
-| --------------------------------- | ------------------------------------------- |
-| `chronyc sources`                 | Lists only the servers in `NTP_SERVERS`     |
-| `chronyc tracking`                | `Leap status : Normal`, small offset        |
-| `05-proxmox-install.sh --dry-run` | Reports "NTP configuration already matches" |
+| Check                             | Expected result                                       |
+| --------------------------------- | ----------------------------------------------------- |
+| `timedatectl`                     | `Time zone: Europe/Copenhagen`, `RTC in local TZ: no` |
+| `chronyc sources`                 | Lists only the servers in `NTP_SERVERS`               |
+| `chronyc tracking`                | `Leap status : Normal`, small offset                  |
+| `05-proxmox-install.sh --dry-run` | Reports "Nothing to do."                              |
 
 ---
 
@@ -56,6 +77,5 @@ Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0003](
 
 | Item                 | Description              | Depends on |
 | -------------------- | ------------------------ | ---------- |
-| Timezone             | Set node timezone        | -          |
 | Updates              | Apply package updates    | -          |
 | Package repositories | Repository configuration | -          |

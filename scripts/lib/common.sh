@@ -31,5 +31,7 @@ source "${_serverlab_lib_dir}/net.sh"
 source "${_serverlab_lib_dir}/disk.sh"
 # shellcheck source=scripts/lib/ntp.sh
 source "${_serverlab_lib_dir}/ntp.sh"
+# shellcheck source=scripts/lib/tz.sh
+source "${_serverlab_lib_dir}/tz.sh"
 
 unset _serverlab_lib_dir
