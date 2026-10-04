@@ -36,6 +36,19 @@ meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-ins
 | `PVE_REPOSITORY`  | string | `"no-subscription"`   |
 | `CEPH_REPOSITORY` | string | `"disabled"`          |
 
+## Resource priority settings
+
+Read by `scripts/proxmox-node/25-resource-priority.sh`; all must be set (an
+empty value reverts that setting). Values and meanings:
+[`../docs/design/09-resource-management.md`](../docs/design/09-resource-management.md).
+
+| Key               | Type   | Example   |
+| ----------------- | ------ | --------- |
+| `HOST_CPU_WEIGHT` | string | `"1000"`  |
+| `HOST_IO_WEIGHT`  | string | `"10000"` |
+| `HOST_MEMORY_LOW` | string | `"4G"`    |
+| `IO_SCHEDULER`    | string | `"bfq"`   |
+
 ## Secrets
 
 Never put passwords, API tokens, or certificates in these files. This

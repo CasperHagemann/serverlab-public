@@ -35,5 +35,7 @@ source "${_serverlab_lib_dir}/ntp.sh"
 source "${_serverlab_lib_dir}/tz.sh"
 # shellcheck source=scripts/lib/apt.sh
 source "${_serverlab_lib_dir}/apt.sh"
+# shellcheck source=scripts/lib/cgroup.sh
+source "${_serverlab_lib_dir}/cgroup.sh"
 
 unset _serverlab_lib_dir
