@@ -75,7 +75,8 @@ preflight() {
 		existing_master="$(net::iface_master "${VM_IFACE}")"
 		if [[ "${existing_master}" == "${VM_BRIDGE}" ]]; then
 			log::info "${VM_BRIDGE} already exists with ${VM_IFACE}" \
-				"attached — nothing to do."
+				"attached."
+			log::info "Nothing to do."
 			exit 0
 		fi
 		log::die "${VM_BRIDGE} already exists but ${VM_IFACE} is not its" \

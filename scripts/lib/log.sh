@@ -23,6 +23,29 @@ log::error() {
 	printf '[ERROR] %s\n' "$*" >&2
 }
 
+# log::reboot_required <reason...>
+# Warns that the administrator must reboot the node, and records the reason
+# in a reminder file (default /run/serverlab/reboot-required; override with
+# SERVERLAB_REBOOT_FILE). /run is cleared on boot, so the reminder ends with
+# the reboot. The stage name (SERVERLAB_STAGE, set by remote-run.sh) is
+# prefixed when known. A reason already recorded is not added twice.
+# Never reboots and never fails the caller.
+log::reboot_required() {
+	local file="${SERVERLAB_REBOOT_FILE:-/run/serverlab/reboot-required}"
+	local entry="${SERVERLAB_STAGE:+${SERVERLAB_STAGE}: }$*"
+
+	log::warn "Reboot required: $*"
+	if ! mkdir -p "$(dirname "${file}")" 2>/dev/null; then
+		log::warn "Could not record the reboot reminder in ${file}."
+		return 0
+	fi
+	if ! grep -qxF -- "${entry}" "${file}" 2>/dev/null; then
+		printf '%s\n' "${entry}" >>"${file}" ||
+			log::warn "Could not record the reboot reminder in ${file}."
+	fi
+	return 0
+}
+
 # log::die <message...>
 # Prints an error message and exits with status 1.
 log::die() {

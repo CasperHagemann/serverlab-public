@@ -70,7 +70,8 @@ undo step. This applies to every script, including `10-network.sh`.
 function, called as `main "$@"` on its last line, that runs these phases in
 order: (1) parse arguments/input — config file first, prompt only for what's
 missing; (2) pre-flight checks — verify assumptions against real Proxmox-node
-state, exit 0 if the target state already holds; (3) plan/diff/confirm —
+state, and if the target state already holds, log `Nothing to do.` as its own
+last line and exit 0; (3) plan/diff/confirm —
 show the change, honor `--dry-run`, prompt unless `--yes`; (4) back up and
 stage; (5) apply; (6) post-verify — re-check Proxmox node state only (no
 external reachability checks, e.g. pinging a gateway, since that can fail
@@ -84,9 +85,14 @@ with `--config`. `config::load` rejects anything in the file beyond plain
 assignments before sourcing it.
 
 **Running on the Proxmox node (`scripts/remote-run.sh`)**: bundles
-`scripts/lib/*.sh`, the target script, and the matching Proxmox-node config file
-into a single command, run over `ssh -t`, so a script can be run on a Proxmox node
-that has no clone of this repo, with prompts still working. A
+`scripts/lib/*.sh`, one or more stages (or `all`), and every Proxmox-node
+config file into a single compressed command, run over one `ssh -t` call, so
+stages can be run on a Proxmox node that has no clone of this repo, with
+prompts still working and one login per run. The node picks the config file
+that matches its own hostname. Each stage runs in its own subshell; the run
+stops at the first failing stage. Stages never reboot the node: they call
+`log::reboot_required`, which records a reminder in
+`/run/serverlab/reboot-required` and is summarised at the end of the run. A
 copy-then-run fallback (`tar` over SSH, then run in place) remains
 documented for debugging, since it preserves real file/line numbers in
 error output.

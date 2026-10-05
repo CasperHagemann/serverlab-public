@@ -109,7 +109,8 @@ preflight() {
 		if [[ -z "${pending}" ]]; then
 			log::info "${LOCAL_DATA_STORAGE_ID} is already mounted at" \
 				"${LOCAL_DATA_MOUNTPOINT} and registered, and all OS" \
-				"storages are disabled — nothing to do."
+				"storages are disabled."
+			log::info "Nothing to do."
 			exit 0
 		fi
 
