@@ -168,6 +168,49 @@ does drop, reconnect and re-run the script — pre-flight checks are designed
 to report "nothing to do" if the change already succeeded, or resume
 cleanly if it didn't.
 
+### Design for later: full deployment in one connection
+
+> Not implemented. `remote-run.sh` runs one script per call, and each call
+> logs in again.
+
+Goal: a full setup (all stages, or a chosen list) needs one login and one
+input from the administrator per run, whichever login method is used (see
+[SSH login options](design/05-security-access.md#ssh-login-options)).
+
+Approach: put all stages into one bundle and run it with one `ssh -t` call.
+
+- Each stage runs in its own subshell, so the `exit` at the end of a stage
+  ends only that stage.
+- The run stops at the first non-zero exit and reports which stages
+  finished, which stopped and which were not run.
+- Usage idea: several script names, or `all`, before `--`. The flags after
+  `--` go to every stage. All names are checked before anything runs.
+
+Rejected: sharing one SSH connection between calls (`ControlMaster`). If the
+script is killed hard, the connection stays open for the `ControlPersist`
+time and can be used without any input. This was tried on a branch and
+dropped.
+
+Constraints:
+
+- A stage that changes the network (`10-network.sh`, `ifreload -a`) can drop
+  the session, so the stages after it do not run. Reconnect and re-run; the
+  finished stages report "Nothing to do".
+- A dry run of several stages shows what each stage would do on its own,
+  not on a node that earlier stages have changed.
+
+Two-stage option: if the deployment grows, run it in two calls. The first
+holds the stages that can break the connection, the second the rest. Each
+call needs one login.
+
+Rules that keep this possible (see
+[ADR-0003](decisions/0003-proxmox-node-script-structure-and-conventions.md)):
+
+- A stage runs on its own and does not need another stage to have run.
+- A stage needs no reboot partway through.
+- All stages take the same flags: `--config`, `--dry-run` and `--yes`.
+- A stage exits with 0 (done or nothing to do) or 1 (aborted or failed).
+
 **Fallback — copy-then-run.** For debugging (e.g. so error line numbers
 match the real files), you can instead copy the files to the Proxmox node and run
 them there directly:
