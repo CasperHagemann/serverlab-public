@@ -26,9 +26,8 @@ Proxmox VE 9.2 (Debian 13 trixie).
 1. Planned Proxmox-node work is listed in the Planned section of each
    `docs/design/` doc (security, backup, monitoring,
    HA). 02 Proxmox Install has nothing planned.
-2. Design for later: running all stages in one SSH connection, see
-   `docs/control-node.md` ("Design for later: full deployment in one
-   connection").
+2. No stage calls `log::reboot_required` yet. Add it where a change needs a
+   reboot.
 3. Optional: GitHub Actions workflow running the same checks as a required
    PR status check.
 
@@ -56,6 +55,9 @@ Proxmox VE 9.2 (Debian 13 trixie).
 - No extra packages on the Proxmox node.
 - Manual `remote-run.sh` verification (dry-run, decline, `--yes`, re-run) is
   sufficient; no automated Proxmox-node test runner.
+- Stages never reboot the node: they call `log::reboot_required` and exit 0.
+- A stage whose target state already holds logs `Nothing to do.` as its own
+  last line.
 - MCP server versions are not pinned.
 - Show fetched web content collapsed; present only conclusions and relevant
   facts.
