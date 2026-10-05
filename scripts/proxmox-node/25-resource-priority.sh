@@ -266,12 +266,33 @@ unit_plan() {
 }
 
 # live_check <slice> <cgroup-file> <expected>
-# Flags a change if the value the kernel holds differs from the target. A
-# missing file (slice or bfq policy not present) is skipped.
+# Flags a change if the value the kernel holds differs from the target.
+# Missing files:
+#   - user.slice does not exist until the first login: skipped.
+#   - cpu.weight and memory.low of system.slice: the controller is not
+#     enabled, which is an error.
+#   - io.bfq.weight of system.slice: a change if bfq is the active
+#     scheduler and a weight is set (the file belongs to the bfq policy),
+#     otherwise skipped.
 live_check() {
 	local actual
+	local effective="${sched_target:-${sched_active}}"
 
-	actual="$(cgroup::weight_value "${CGROUP_ROOT}/$1/$2")" || return 0
+	if ! actual="$(cgroup::weight_value "${CGROUP_ROOT}/$1/$2")"; then
+		if [[ "$1" != "system.slice" ]]; then
+			return 0
+		fi
+		if [[ "$2" != "io.bfq.weight" ]]; then
+			log::die "${CGROUP_ROOT}/$1/$2 is missing: the controller is" \
+				"not enabled."
+		fi
+		if [[ "${effective}" == "bfq" && "${sched_changed}" == false &&
+			-n "${HOST_IO_WEIGHT}" ]]; then
+			live_changed=true
+			log::info "Staging: $1 $2 not present -> $3 (bfq is active)"
+		fi
+		return 0
+	fi
 	if [[ "${actual}" != "$3" ]]; then
 		live_changed=true
 		log::info "Staging: $1 $2 ${actual} -> $3"
