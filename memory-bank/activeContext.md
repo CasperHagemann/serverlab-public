@@ -26,7 +26,10 @@ Proxmox VE 9.2 (Debian 13 trixie).
 1. Planned Proxmox-node work is listed in the Planned section of each
    `docs/design/` doc (security, backup, monitoring,
    HA). 02 Proxmox Install has nothing planned.
-2. Optional: GitHub Actions workflow running the same checks as a required
+2. Design for later: running all stages in one SSH connection, see
+   `docs/control-node.md` ("Design for later: full deployment in one
+   connection").
+3. Optional: GitHub Actions workflow running the same checks as a required
    PR status check.
 
 ## Preferences
