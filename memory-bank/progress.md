@@ -14,16 +14,16 @@
 
 ## Planned
 
-| Item                      | Reference                                                                               |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| Post-install tasks        | `docs/design/02-proxmox-install.md` (updates, repos)                                    |
-| Resource priority         | `docs/design/09-resource-management.md`, ADR-0005 (script written, not run on the node) |
-| Backups (PBS)             | `docs/design/06-backup-recovery.md`                                                     |
-| Security and access       | `docs/design/05-security-access.md`                                                     |
-| Monitoring                | `docs/design/07-monitoring.md`                                                          |
-| Clustering / HA           | `docs/design/08-high-availability.md` (phase 2)                                         |
-| Overview, hardware design | `docs/design/00-overview.md`, `01-hardware-firmware.md`                                 |
-| CI                        | GitHub Actions running the same checks as a required PR check                           |
+| Item                      | Reference                                                     |
+| ------------------------- | ------------------------------------------------------------- |
+| Post-install tasks        | `docs/design/02-proxmox-install.md` (updates, repos)          |
+| Resource priority         | `docs/design/09-resource-management.md`, ADR-0005             |
+| Backups (PBS)             | `docs/design/06-backup-recovery.md`                           |
+| Security and access       | `docs/design/05-security-access.md`                           |
+| Monitoring                | `docs/design/07-monitoring.md`                                |
+| Clustering / HA           | `docs/design/08-high-availability.md` (phase 2)               |
+| Overview, hardware design | `docs/design/00-overview.md`, `01-hardware-firmware.md`       |
+| CI                        | GitHub Actions running the same checks as a required PR check |
 
 ## Known issues
 

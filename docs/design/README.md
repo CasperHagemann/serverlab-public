@@ -16,4 +16,4 @@ is live and a separate Planned section for what is not implemented.
 | 06  | [Backup & Recovery](06-backup-recovery.md)                | Backup strategy and recovery procedures                                           | Not started |
 | 07  | [Monitoring](07-monitoring.md)                            | Node monitoring/alerting                                                          | Not started |
 | 08  | [High Availability & Clustering](08-high-availability.md) | Phase 2 clustering and hardware-level failover                                    | Not started |
-| 09  | [Resource Management](09-resource-management.md)          | Node priority over guests for CPU, disk I/O and memory (weights)                  | Not started |
+| 09  | [Resource Management](09-resource-management.md)          | Node priority over guests for CPU, disk I/O and memory (weights)                  | Implemented |

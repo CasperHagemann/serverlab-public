@@ -28,7 +28,17 @@ network, backups, migration.
 
 ## Configuration
 
-None. Nothing is applied until `25-resource-priority.sh` has run.
+### Live on `pve.kiwik.org`
+
+| Item                         | Value                                                                 |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `system.slice`, `user.slice` | `CPUWeight=1000`, `IOWeight=10000` (BFQ weight 1000)                  |
+| `system.slice`               | `MemoryLow=4G`                                                        |
+| OS disk (`nvme0n1`)          | I/O scheduler `bfq` (udev rule); other devices `none`                 |
+| Drop-ins                     | `/etc/systemd/system/{system,user}.slice.d/50-resource-priority.conf` |
+| Udev rule                    | `/etc/udev/rules.d/60-io-scheduler.rules`                             |
+| Saved scheduler              | `/etc/io-scheduler.orig`                                              |
+| Boot unit                    | `serverlab-resource-priority.service`, enabled                        |
 
 ## Config keys
 
@@ -42,12 +52,10 @@ empty value reverts that setting.
 | `HOST_MEMORY_LOW` | `4G`    | `MemoryLow` of `system.slice`                        |
 | `IO_SCHEDULER`    | `bfq`   | Scheduler of the OS disk (`LOCAL_DATA_DISK` or auto) |
 
-## Planned
+## Implementation
 
-> Not implemented.
-
-`scripts/proxmox-node/25-resource-priority.sh` (written, not yet run on the
-node):
+Script: `scripts/proxmox-node/25-resource-priority.sh`
+([`scripts/README.md`](../../scripts/README.md)). Steps:
 
 - Writes `/etc/systemd/system/system.slice.d/50-resource-priority.conf` and
   the same under `user.slice.d/` (`MemoryLow` only in `system.slice`).
@@ -61,12 +69,41 @@ node):
 daemon-reload`, then writes the values to the running slices.
 - Compares the live `cpu.weight`, `io.bfq.weight` and `memory.low` with the
   targets in the plan, so a missed or changed value is repaired on re-run.
+  A missing `user.slice` file is skipped (the slice exists after the first
+  login). A missing `io.bfq.weight` of `system.slice` counts as a change
+  when `bfq` is the active scheduler; other missing `system.slice` files
+  stop the script.
 - Verifies the same values, the unit state and the active scheduler.
 - Idempotent; `--dry-run` and `--yes`; no automatic rollback.
 
 ## Verification
 
-To fill in after the script has run on the node.
+| Check                                                                             | Expected result                                       |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `cat /sys/fs/cgroup/system.slice/{cpu.weight,io.bfq.weight,io.weight,memory.low}` | `1000`, `default 1000`, `default 10000`, `4294967296` |
+| `cat /sys/fs/cgroup/user.slice/{cpu.weight,io.bfq.weight}`                        | `1000`, `default 1000`                                |
+| `grep -H . /sys/block/*/queue/scheduler`                                          | `nvme0n1` is `[bfq]`                                  |
+| `systemctl status serverlab-resource-priority.service`                            | enabled, `active (exited)`, all `ExecStart` 0         |
+| `ls /run/systemd/system.control/`                                                 | No `system.slice.d` or `user.slice.d`                 |
+| `25-resource-priority.sh --dry-run` after a reboot                                | Reports nothing to do                                 |
 
-Script structure: [`scripts/README.md`](../../scripts/README.md) and
-[ADR-0003](../decisions/0003-proxmox-node-script-structure-and-conventions.md).
+Repair test: after `systemctl set-property --runtime system.slice
+CPUWeight=200`, `--dry-run` shows `cpu.weight 200 -> 1000`, `--yes` repairs
+it, `/run/systemd/system.control/` is left empty and a further `--dry-run`
+reports nothing to do.
+
+Checked on `pve.kiwik.org` after a reboot. The revert has not been tested
+on the node.
+
+Fairness between several busy guests has not been measured.
+
+## Decision records
+
+- [ADR-0005](../decisions/0005-node-resource-priority-and-fair-sharing.md):
+  node priority by weights, not limits.
+
+## Planned
+
+> Not implemented.
+
+None.

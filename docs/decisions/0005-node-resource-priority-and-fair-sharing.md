@@ -1,6 +1,6 @@
 # 0005. Node resource priority and fair sharing
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-10-04
 
