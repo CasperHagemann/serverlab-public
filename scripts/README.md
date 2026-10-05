@@ -147,8 +147,9 @@ prompt interactively for values that are missing — see
 
 These scripts are meant to run **on** the Proxmox node (they call `pvesh`,
 read `/etc/network/interfaces`, etc.), but this repo isn't necessarily
-cloned there. Use [`remote-run.sh`](remote-run.sh) to run a Proxmox-node script
-over SSH without copying anything to the Proxmox node's filesystem first — see
+cloned there. Use [`remote-run.sh`](remote-run.sh) to run one or more
+Proxmox-node scripts (or `all`) over a single SSH connection without copying
+anything to the Proxmox node's filesystem first — see
 [`docs/control-node.md`](../docs/control-node.md#running-scripts-on-the-remote-proxmox-node)
 for usage and caveats.
 
@@ -159,4 +160,4 @@ for usage and caveats.
 | `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers        |
 | `proxmox-node/` | Post-install Proxmox-node configuration scripts, numbered for run order (`10-`, `20-`, …) |
 | `control-node/` | Control-node tooling: `check.sh` (format/lint/test), `install-hooks.sh` (git hooks setup) |
-| `remote-run.sh` | Runs on the control node; bundles and runs a `proxmox-node/` script on a Proxmox node     |
+| `remote-run.sh` | Runs on the control node; bundles and runs `proxmox-node/` stages on a Proxmox node       |

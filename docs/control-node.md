@@ -168,23 +168,39 @@ does drop, reconnect and re-run the script — pre-flight checks are designed
 to report "nothing to do" if the change already succeeded, or resume
 cleanly if it didn't.
 
-### Design for later: full deployment in one connection
+### Full deployment in one connection
 
-> Not implemented. `remote-run.sh` runs one script per call, and each call
-> logs in again.
-
-Goal: a full setup (all stages, or a chosen list) needs one login and one
-input from the administrator per run, whichever login method is used (see
+A full setup (all stages, or a chosen list) needs one login and one input
+from the administrator per run, whichever login method is used (see
 [SSH login options](design/05-security-access.md#ssh-login-options)).
 
-Approach: put all stages into one bundle and run it with one `ssh -t` call.
+```bash
+scripts/remote-run.sh root@192.168.88.101 all -- --dry-run
+scripts/remote-run.sh root@192.168.88.101 all -- --yes
+scripts/remote-run.sh root@192.168.88.101 10-network.sh 20-storage.sh
+```
 
+How it works: all stages go into one bundle, sent compressed with one
+`ssh -t` call.
+
+- Several script names, or `all` (every `[0-9][0-9]-*.sh` stage, in name
+  order), go before `--`. The flags after `--` go to every stage. All names
+  are checked before anything is sent.
+- Every config file in `config/proxmox-nodes/` is in the bundle. The
+  Proxmox node picks the one that matches its own `hostname -f`, so no
+  second login is needed to find its name. If none matches, the run stops
+  before the first stage.
 - Each stage runs in its own subshell, so the `exit` at the end of a stage
   ends only that stage.
 - The run stops at the first non-zero exit and reports which stages
   finished, which stopped and which were not run.
-- Usage idea: several script names, or `all`, before `--`. The flags after
-  `--` go to every stage. All names are checked before anything runs.
+- Stages never reboot the node. A stage that needs a reboot applies its
+  config, calls `log::reboot_required "<reason>"` and exits 0. The reason
+  is shown at once, listed in the summary at the end of the run, and kept in
+  `/run/serverlab/reboot-required`. `/run` is cleared on boot, so the
+  reminder is shown again at the start and end of every run until the
+  administrator reboots. This also covers a dropped session, where the
+  summary is lost.
 
 Rejected: sharing one SSH connection between calls (`ControlMaster`). If the
 script is killed hard, the connection stays open for the `ControlPersist`
@@ -207,7 +223,8 @@ Rules that keep this possible (see
 [ADR-0003](decisions/0003-proxmox-node-script-structure-and-conventions.md)):
 
 - A stage runs on its own and does not need another stage to have run.
-- A stage needs no reboot partway through.
+- A stage never reboots the node. If a change needs a reboot, the stage
+  applies its config, calls `log::reboot_required` and exits 0.
 - All stages take the same flags: `--config`, `--dry-run` and `--yes`.
 - A stage exits with 0 (done or nothing to do) or 1 (aborted or failed).
 
