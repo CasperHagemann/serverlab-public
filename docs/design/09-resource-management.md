@@ -92,10 +92,16 @@ CPUWeight=200`, `--dry-run` shows `cpu.weight 200 -> 1000`, `--yes` repairs
 it, `/run/systemd/system.control/` is left empty and a further `--dry-run`
 reports nothing to do.
 
-Checked on `pve.kiwik.org` after a reboot. The revert has not been tested
-on the node.
+Revert test: with the four config keys empty, `--yes` removes the two
+drop-ins, the unit and the udev rule, sets the scheduler of `nvme0n1` back
+to `none` (from `/etc/io-scheduler.orig`) and the values back to `cpu.weight`
+100, `io.bfq.weight` and `io.weight` `default 100`, `memory.low` 0. The unit
+is `not-found`, no runtime drop-ins are left and a further `--dry-run`
+reports nothing to do. Restoring the keys and running `--yes` applies all
+settings again. `/etc/io-scheduler.orig` and the `.bak.<timestamp>` backups
+of the removed files are kept.
 
-Fairness between several busy guests has not been measured.
+Checked on `pve.kiwik.org`: apply, reboot, repair and revert.
 
 ## Decision records
 
