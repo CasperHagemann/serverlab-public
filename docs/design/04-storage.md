@@ -79,13 +79,8 @@ Config: `config/proxmox-nodes/<hostname>.env` ([`config/README.md`](../../config
 
 - [ADR-0004](../decisions/0004-local-guest-storage-btrfs.md): btrfs for local guest storage.
 
----
-
 ## Planned
 
 > Not implemented.
 
-| Item             | Description                                                                                                                                                                                                                                                                                                     | Depends on                       |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Backups          | Proxmox Backup Server on a second host                                                                                                                                                                                                                                                                          | Second host (phase 2)            |
-| Fair I/O sharing | cgroup v2 `IOWeight` via `systemctl set-property`: `system.slice` 1000, `qemu.slice`/`lxc` 100, guest scopes at default 100. Requires the BFQ I/O scheduler (persisted via udev rule). Optional `io.max` cap on `qemu.slice`. Backup/restore/migration limited via `bwlimit` in `datacenter.cfg`/`vzdump.conf`. | Evaluation on real disk hardware |
+None. Fair I/O sharing moved to [`09-resource-management.md`](09-resource-management.md).

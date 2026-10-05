@@ -17,6 +17,13 @@ Physical hardware used in this lab.
 | BIOS      | AMI 1.02   | 2025-06-16 |
 | NVMe      | `P4ER3B31` | —          |
 
+### Software
+
+| Component  | Version            | Documentation                             |
+| ---------- | ------------------ | ----------------------------------------- |
+| Proxmox VE | 9.2                | <https://pve.proxmox.com/pve-docs/> (9.x) |
+| Base OS    | Debian 13 (trixie) | <https://www.debian.org/releases/trixie/> |
+
 ### Storage
 
 | Device         | Model                        | Capacity | Partition(s)     | Filesystem | Use                    |

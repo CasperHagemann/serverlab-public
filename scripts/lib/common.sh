@@ -29,5 +29,13 @@ source "${_serverlab_lib_dir}/pve.sh"
 source "${_serverlab_lib_dir}/net.sh"
 # shellcheck source=scripts/lib/disk.sh
 source "${_serverlab_lib_dir}/disk.sh"
+# shellcheck source=scripts/lib/ntp.sh
+source "${_serverlab_lib_dir}/ntp.sh"
+# shellcheck source=scripts/lib/tz.sh
+source "${_serverlab_lib_dir}/tz.sh"
+# shellcheck source=scripts/lib/apt.sh
+source "${_serverlab_lib_dir}/apt.sh"
+# shellcheck source=scripts/lib/cgroup.sh
+source "${_serverlab_lib_dir}/cgroup.sh"
 
 unset _serverlab_lib_dir

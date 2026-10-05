@@ -64,3 +64,54 @@ setup() {
 	run config::require EMPTY_VAR
 	[ "$status" -eq 1 ]
 }
+
+@test "config::load sources single-line arrays, including an empty one" {
+	local config_file="${BATS_TEST_TMPDIR}/host.env"
+	cat >"${config_file}" <<-'EOT'
+		SERVERS=("a.example" "b.example") # trailing comment
+		NONE=()
+	EOT
+
+	config::load "${config_file}"
+	[ "${#SERVERS[@]}" -eq 2 ]
+	[ "${SERVERS[1]}" == "b.example" ]
+	[ "${#NONE[@]}" -eq 0 ]
+}
+
+@test "config::load refuses an array containing command substitution" {
+	local config_file="${BATS_TEST_TMPDIR}/malicious.env"
+	echo 'EVIL=("$(echo pwned)")' >"${config_file}"
+
+	run config::load "${config_file}"
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"refusing to load"* ]]
+}
+
+@test "config::require_array passes for an empty array" {
+	EMPTY=()
+	run config::require_array EMPTY
+	[ "$status" -eq 0 ]
+}
+
+@test "config::require_array dies for a scalar or unset variable" {
+	SCALAR="x"
+	run config::require_array SCALAR
+	[ "$status" -eq 1 ]
+	unset MISSING_ARR
+	run config::require_array MISSING_ARR
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"MISSING_ARR"* ]]
+}
+
+@test "config::require_declared passes for a set but empty variable" {
+	EMPTY_DECL=""
+	run config::require_declared EMPTY_DECL
+	[ "$status" -eq 0 ]
+}
+
+@test "config::require_declared dies for an undeclared variable" {
+	unset MISSING_DECL
+	run config::require_declared MISSING_DECL
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"MISSING_DECL"* ]]
+}

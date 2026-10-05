@@ -9,18 +9,23 @@ The repository is considered ready for public release.
 ## Proxmox node state (`pve.kiwik.org`)
 
 Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
+Proxmox VE 9.2 (Debian 13 trixie).
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
 - `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/10-network.sh`.
 - `local-data` (`nvme0n1p4`, btrfs, ~853 GiB) created by
   `scripts/proxmox-node/20-storage.sh`; `local` and `local-btrfs` disabled.
+- Time zone, NTP (chrony) and APT repositories configured by
+  `scripts/proxmox-node/05-proxmox-install.sh`: PVE no-subscription
+  repository in use, PVE and Ceph enterprise repositories disabled (stock
+  files in `/etc/apt/sources.list.orig/`).
 - Values: `inventory/`, `config/proxmox-nodes/pve.kiwik.org.env`.
 
 ## Next steps
 
 1. Planned Proxmox-node work is listed in the Planned section of each
-   `docs/design/` doc (post-install tasks in 02, I/O weighting in 04,
-   security, backup, monitoring, HA).
+   `docs/design/` doc (security, backup, monitoring,
+   HA). 02 Proxmox Install has nothing planned.
 2. Optional: GitHub Actions workflow running the same checks as a required
    PR status check.
 

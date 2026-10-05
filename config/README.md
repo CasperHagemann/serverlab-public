@@ -17,10 +17,37 @@ Scripts default to `config/proxmox-nodes/$(hostname -f).env` and accept
 
 ## Format
 
-Plain `KEY=value` lines and `#` comments only — no command substitution,
-variable expansion, or control flow. `config::load` (in
+Plain `KEY=value` lines, single-line arrays of quoted plain words
+(`KEY=("a.example" "b.example")`, `KEY=()` for empty), and `#` comments only —
+no command substitution, variable expansion, or control flow. `config::load` (in
 [`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
 else before sourcing the file.
+
+## Post-install settings
+
+Read by `scripts/proxmox-node/05-proxmox-install.sh`; all must be set (an
+empty value has a defined meaning, a missing line stops the script). Values and
+meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-install.md).
+
+| Key               | Type   | Example               |
+| ----------------- | ------ | --------------------- |
+| `TIMEZONE`        | string | `"Europe/Copenhagen"` |
+| `NTP_SERVERS`     | array  | `("0.pool.ntp.org")`  |
+| `PVE_REPOSITORY`  | string | `"no-subscription"`   |
+| `CEPH_REPOSITORY` | string | `"disabled"`          |
+
+## Resource priority settings
+
+Read by `scripts/proxmox-node/25-resource-priority.sh`; all must be set (an
+empty value reverts that setting). Values and meanings:
+[`../docs/design/09-resource-management.md`](../docs/design/09-resource-management.md).
+
+| Key               | Type   | Example   |
+| ----------------- | ------ | --------- |
+| `HOST_CPU_WEIGHT` | string | `"1000"`  |
+| `HOST_IO_WEIGHT`  | string | `"10000"` |
+| `HOST_MEMORY_LOW` | string | `"4G"`    |
+| `IO_SCHEDULER`    | string | `"bfq"`   |
 
 ## Secrets
 

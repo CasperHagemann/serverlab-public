@@ -12,6 +12,7 @@ project, and the reasoning behind them. Detailed target state lives in
 | [0002](0002-use-bash-and-proxmox-native-tooling.md)           | Use bash and Proxmox native tooling           | Accepted |
 | [0003](0003-proxmox-node-script-structure-and-conventions.md) | Proxmox-node script structure and conventions | Accepted |
 | [0004](0004-local-guest-storage-btrfs.md)                     | Local guest storage: btrfs                    | Accepted |
+| [0005](0005-node-resource-priority-and-fair-sharing.md)       | Node resource priority and fair sharing       | Accepted |
 
 ## Creating or changing an ADR
 
