@@ -1,23 +1,18 @@
 # Proxmox-node scripts
 
-Scripts for configuring the Proxmox node itself: post-install setup,
-storage, networking, security, backup, monitoring.
-
-There is one script per design area, named after its design doc in
-[`docs/design/`](../../docs/design/). The scripts are independent of each other
-and need only a freshly installed Proxmox node. See
-[`../README.md`](../README.md) for the conventions all scripts here must follow
-(`set -euo pipefail`, shellcheck-clean, idempotent, no hardcoded environment
-values, phase structure).
+Scripts for configuring the Proxmox node itself. There is one script per design
+area, named after its design doc in [`docs/design/`](../../docs/design/). The
+scripts are independent of each other and need only a freshly installed Proxmox
+node. The conventions they follow are in [`../README.md`](../README.md).
 
 ## Scripts
 
-| Script                   | Purpose                                                                       |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| `base-system.sh`         | Proxmox-node post-install: time zone, NTP (chrony) servers, APT repositories  |
-| `networking.sh`          | Proxmox-node networking: creates the general VM network bridge `vmbr1`        |
-| `storage.sh`             | Proxmox-node storage: creates the `local-data` btrfs partition/storage        |
-| `resource-management.sh` | Proxmox-node resource priority: CPU, disk I/O and memory weights for the node |
+| Script                   | Purpose                                                   |
+| ------------------------ | --------------------------------------------------------- |
+| `base-system.sh`         | Time zone, NTP (chrony) servers, APT repositories         |
+| `networking.sh`          | The general VM network bridge                             |
+| `storage.sh`             | The btrfs guest storage                                   |
+| `resource-management.sh` | CPU, disk I/O and memory weights that prioritise the node |
 
 Run these on the Proxmox node itself — see
 [`../remote-run.sh`](../remote-run.sh) and

@@ -7,12 +7,13 @@ Control-node only — never installed on Proxmox nodes (see
 ## Running
 
 ```bash
-bats tests/                 # whole suite, recursively
-bats tests/lib/net.bats      # a single file
-./scripts/control-node/check.sh           # runs the whole suite too (fix mode only —
-                              # see scripts/control-node/check.sh; not part of the
-                              # staged-files pre-commit hook)
+bats tests/               # whole suite, recursively
+bats tests/lib/net.bats   # a single file
+./scripts/control-node/check.sh
 ```
+
+`check.sh` also runs the whole suite, in fix mode only. The staged-files
+pre-commit hook does not run the tests.
 
 ## Layout
 
@@ -38,7 +39,7 @@ bats tests/lib/net.bats      # a single file
   filtering, `net::default_gateway`'s route-table parsing. Thin
   pass-through wrappers around a single external command (most of
   `pve.sh`, much of `net.sh`) are not tested.
-- Behavior that depends on real Proxmox/Proxmox node state (applying network
+- Behavior that depends on real Proxmox node state (applying network
   changes, pre-flight refusals against the live network config) is
   verified manually against the Proxmox node via `scripts/remote-run.sh`: dry-run,
   decline, `--yes` apply, then a no-op re-run. See

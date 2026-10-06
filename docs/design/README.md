@@ -17,7 +17,7 @@ script of the same name in [`scripts/proxmox-node/`](../../scripts/proxmox-node/
 | [Security & Access](security-access.md)       | -                        | Access control, hardening, authentication                        | Not started |
 | [Backup & Recovery](backup-recovery.md)       | -                        | Backup strategy and recovery procedures                          | Not started |
 | [Monitoring](monitoring.md)                   | -                        | Node monitoring/alerting                                         | Not started |
-| [Clustering](clustering.md)                   | -                        | Phase 2 clustering and hardware-level failover                   | Not started |
+| [Clustering](clustering.md)                   | -                        | Multi-node cluster and hardware-level failover                   | Not started |
 
 ## Where facts live
 

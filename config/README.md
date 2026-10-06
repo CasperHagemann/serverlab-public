@@ -1,8 +1,9 @@
 # Config
 
-Per-node configuration files read by `scripts/proxmox-node/*.sh`, so the same
-script works unchanged across nodes — see
-[`../scripts/README.md`](../scripts/README.md).
+Per-node configuration files read by the scripts in
+[`scripts/proxmox-node/`](../scripts/proxmox-node/), so the same script works
+unchanged on every Proxmox node. How scripts use them:
+[`scripts/README.md`](../scripts/README.md#configuration-pattern).
 
 ## Layout
 
@@ -23,31 +24,18 @@ no command substitution, variable expansion, or control flow. `config::load` (in
 [`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
 else before sourcing the file.
 
-## Post-install settings
+## Keys
 
-Read by `scripts/proxmox-node/base-system.sh`; all must be set (an
-empty value has a defined meaning, a missing line stops the script). Values and
-meanings: [`../docs/design/base-system.md`](../docs/design/base-system.md).
+All keys a script reads must be set. An empty value has a defined meaning, and
+a missing key stops the script. Each key is described, with its values and what
+they do, in the design doc of its area:
 
-| Key               | Type   | Example               |
-| ----------------- | ------ | --------------------- |
-| `TIMEZONE`        | string | `"Europe/Copenhagen"` |
-| `NTP_SERVERS`     | array  | `("0.pool.ntp.org")`  |
-| `PVE_REPOSITORY`  | string | `"no-subscription"`   |
-| `CEPH_REPOSITORY` | string | `"disabled"`          |
-
-## Resource priority settings
-
-Read by `scripts/proxmox-node/resource-management.sh`; all must be set (an
-empty value reverts that setting). Values and meanings:
-[`../docs/design/resource-management.md`](../docs/design/resource-management.md).
-
-| Key               | Type   | Example   |
-| ----------------- | ------ | --------- |
-| `HOST_CPU_WEIGHT` | string | `"1000"`  |
-| `HOST_IO_WEIGHT`  | string | `"10000"` |
-| `HOST_MEMORY_LOW` | string | `"4G"`    |
-| `IO_SCHEDULER`    | string | `"bfq"`   |
+| Area                | Design doc                                                        |
+| ------------------- | ----------------------------------------------------------------- |
+| Base system         | [`base-system.md`](../docs/design/base-system.md)                 |
+| Networking          | [`networking.md`](../docs/design/networking.md)                   |
+| Storage             | [`storage.md`](../docs/design/storage.md)                         |
+| Resource management | [`resource-management.md`](../docs/design/resource-management.md) |
 
 ## Secrets
 
@@ -58,6 +46,6 @@ that are excluded, e.g. `*.secret`).
 
 ## Relationship to `inventory/`
 
-`inventory/` is the human-readable source of truth; these files are what
-scripts actually read. The values must match — update both together when
-something changes.
+`config/` holds the values a script applies. [`inventory/`](../inventory/)
+holds the facts no script sets: the hardware and the site network plan. A value
+lives in one of them, not both.

@@ -1,11 +1,16 @@
 # Scripts
 
-Bash scripts for this repo: Proxmox-node configuration scripts
-(`proxmox-node/`: install/post-install setup, storage, networking, security,
-backup, monitoring), shared libraries (`lib/`), and control-node tooling
-(`control-node/`, `remote-run.sh`). Guest/VM/container provisioning is
-explicitly out of scope (see root README). The terms _control node_ and
-_Proxmox node_ are defined in the root README (Environments).
+Bash scripts for this repo:
+
+- [`proxmox-node/`](proxmox-node/): one script per design area, run on the
+  Proxmox node.
+- [`lib/`](lib/): shared libraries.
+- [`control-node/`](control-node/) and [`remote-run.sh`](remote-run.sh): tooling
+  run on the control node.
+
+The terms _control node_ and _Proxmox node_ are defined in
+[ADR-0006](../docs/decisions/0006-terminology-and-naming.md). Guests are out
+of scope.
 
 ## Conventions
 
@@ -67,10 +72,8 @@ These run on the Proxmox node and also follow:
 
 ## `scripts/lib/` — shared function libraries
 
-Shared code lives in `scripts/lib/`, split by topic into one file per
-concern (`log.sh`, `guards.sh`, `prompt.sh`, `files.sh`, `config.sh`,
-`pve.sh`, `net.sh`, `disk.sh`), loaded via a single `common.sh` that only
-sources them:
+Shared code lives in `scripts/lib/`, one file per topic, loaded via a single
+`common.sh` that only sources them:
 
 ```bash
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
@@ -106,10 +109,8 @@ calls the others in order, with the script's last line being `main "$@"`.
 Constants (e.g. file paths) are declared `readonly` near the top. The
 phases, in order:
 
-1. **Parse arguments / input.** Read required values from a config file
-   first (see below), and only prompt interactively for anything missing —
-   this keeps re-running scripts fast while still supporting first-run
-   interactive setup. Support `--dry-run` and `--yes` where applicable.
+1. **Parse arguments / input.** Read required values from the config file
+   (see below). Support `--dry-run` and `--yes` where applicable.
 2. **Pre-flight checks.** Read current Proxmox node state and verify assumptions —
    does the resource already exist, is a prerequisite file/interface
    present, is there a conflicting change already staged. If the target
@@ -136,12 +137,11 @@ for the reasoning behind this structure.
 
 ## Configuration pattern
 
-Scripts read required values (management interface name, VLAN IDs, etc.)
-from a per-node config file in `config/proxmox-nodes/<hostname>.env`, and only
-prompt interactively for values that are missing — see
-[`config/README.md`](../config/README.md) for the file format and
-`config::load`/`config::require` in
-[`lib/config.sh`](lib/config.sh) for how scripts consume it.
+Scripts read their values from the per-node config file
+`config/proxmox-nodes/<hostname>.env`, and stop if a required value is missing.
+The file format is described in [`config/README.md`](../config/README.md).
+Scripts use `config::load` and `config::require` from
+[`lib/config.sh`](lib/config.sh).
 
 ## Running scripts on the remote Proxmox node
 
@@ -157,7 +157,7 @@ for usage and caveats.
 
 | Path            | Purpose                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------- |
-| `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers              |
+| `lib/`          | Shared function libraries, one file per topic                                                   |
 | `proxmox-node/` | Post-install Proxmox-node configuration scripts, one per design area, independent of each other |
 | `control-node/` | Control-node tooling: `check.sh` (format/lint/test), `install-hooks.sh` (git hooks setup)       |
 | `remote-run.sh` | Runs on the control node; bundles and runs `proxmox-node/` stages on a Proxmox node             |

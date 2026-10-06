@@ -1,65 +1,45 @@
 # serverlab
 
-A homelab project for standing up and configuring a Proxmox node from bare
-metal, using native tooling.
-
-## Status
-
-**Phase 1 — single bare-metal Proxmox node.** Proxmox VE is installed on
-`pve.kiwik.org` (Minisforum MS-A2, see
-[`inventory/hardware.md`](inventory/hardware.md)); Proxmox-node configuration is
-being applied and documented.
-
-## Roadmap
-
-1. **Single node** (current) — configure the bare-metal Proxmox node and finalize
-   the major Proxmox-node design areas (see `docs/design/`).
-2. **Clustering** — add a second physical machine, implement clustering and
-   hardware-level failover (still homelab-scale, not enterprise HA).
-
-Actual services (VMs, containers, workloads) are explicitly **out of scope**
-for this repo — that will be a separate project once the Proxmox node platform is
-stable and trusted.
+Scripts and documentation for configuring a bare-metal Proxmox VE node
+with Proxmox's own tooling (bash, `pvesh`, `pvesm`).
 
 ## Scope
 
-This repo is concerned with the **Proxmox node only**: install, storage,
-networking, security/access, backup, monitoring, and (eventually) clustering.
-It is not concerned with guest provisioning or configuration.
+The Proxmox node itself: base system, networking, storage, resource
+management, security, backup, monitoring and clustering. Guests (VMs,
+containers, workloads) are out of scope and belong in a separate project.
 
-Toolstack: bash scripting against the Proxmox CLI (`pvesh`, `qm`, `pct`,
-`pvesm`) and/or the REST API. Rationale is recorded in the ADRs under
-[`docs/decisions/`](docs/decisions/).
+## Where to start
 
-## Environments
+| To                                              | Read                                             |
+| ----------------------------------------------- | ------------------------------------------------ |
+| See how an area is designed and what is planned | [`docs/design/`](docs/design/)                   |
+| Understand why a choice was made                | [`docs/decisions/`](docs/decisions/)             |
+| Set up the machine you work from                | [`docs/control-node.md`](docs/control-node.md)   |
+| Run or write a script                           | [`scripts/README.md`](scripts/README.md)         |
+| Find the values of a node                       | [`config/proxmox-nodes/`](config/proxmox-nodes/) |
 
-Two machines are involved. The terms below are used uniformly across the
-repo: **control node** comes from Ansible's vocabulary, and **Proxmox node**
-replaces Ansible's "managed node" with Proxmox's own word for a server.
-
-| Term             | Meaning                                              | What runs there                                                                                   |
-| ---------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Control node** | The machine where this repo is cloned and worked on. | `scripts/control-node/*`, `scripts/remote-run.sh`, tests (`bats`), formatters/linters, git hooks. |
-| **Proxmox node** | The server running Proxmox VE that is configured.    | `scripts/proxmox-node/*.sh` and the Proxmox tooling they call (`pvesh`, `pvesm`).                 |
-
-Do not use "host", "server", "workstation", "development environment" or an
-unqualified "local"/"remote" for these machines. "Node" on its own is only
-used in the Proxmox API/cluster sense (`/nodes/<node>`, `pve::node`).
-"Hostname" stays, since it is the operating-system concept.
+The terms "control node" and "Proxmox node" are defined in
+[ADR-0006](docs/decisions/0006-terminology-and-naming.md).
 
 ## Repository layout
 
-| Path                   | Purpose                                                                   |
-| ---------------------- | ------------------------------------------------------------------------- |
-| `docs/design/`         | Design docs for each Proxmox-node design area (storage, networking, etc.) |
-| `docs/decisions/`      | Architecture Decision Records — current decisions and their reasoning     |
-| `docs/runbooks/`       | Operational procedures                                                    |
-| `docs/control-node.md` | Control node setup and MCP server notes for contributors                  |
-| `inventory/`           | Hardware facts and the site network plan                                  |
-| `scripts/`             | Configuration scripts (bash) and shared helpers                           |
-| `.cline/mcp.json`      | MCP server config reference (manual copy-in, not auto-loaded)             |
+| Path                                                  | Purpose                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------------ |
+| `config/`                                             | Node config read by the scripts, one `.env` file per node          |
+| `docs/design/`                                        | One design doc per area: configuration, verification, planned work |
+| `docs/decisions/`                                     | Architecture Decision Records                                      |
+| `docs/runbooks/`                                      | Operational procedures                                             |
+| `docs/control-node.md`                                | Control node setup                                                 |
+| `inventory/`                                          | Hardware facts and the site network plan                           |
+| `scripts/proxmox-node/`                               | One script per area, run on the Proxmox node                       |
+| `scripts/control-node/`                               | Checks, formatters and git hooks, run on the control node          |
+| `scripts/lib/`                                        | Shared bash libraries                                              |
+| `scripts/remote-run.sh`                               | Runs the Proxmox-node scripts over one SSH connection              |
+| `tests/`                                              | bats tests for the libraries                                       |
+| `memory-bank/`, `.clinerules/`, `.cline/`, `.agents/` | Context and rules for AI assistants                                |
+| `.vscode/`, `serverlab.code-workspace`                | Editor settings                                                    |
 
-## Contributing
+## License
 
-Solo project for now. No `CONTRIBUTING.md` yet — conventions for scripts live
-in [`scripts/README.md`](scripts/README.md).
+See [`LICENSE`](LICENSE).

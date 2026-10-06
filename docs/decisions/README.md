@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
-Design decisions currently in force for the Proxmox node configuration
-project, and the reasoning behind them. Detailed target state lives in
+Design decisions currently in force for this project, and the reasoning
+behind them. Detailed target state lives in
 `docs/design/`. See [ADR-0001](0001-record-architecture-decisions.md).
 
 ## Index
@@ -13,6 +13,7 @@ project, and the reasoning behind them. Detailed target state lives in
 | [0003](0003-proxmox-node-script-structure-and-conventions.md) | Proxmox-node script structure and conventions | Accepted |
 | [0004](0004-local-guest-storage-btrfs.md)                     | Local guest storage: btrfs                    | Accepted |
 | [0005](0005-node-resource-priority-and-fair-sharing.md)       | Node resource priority and fair sharing       | Accepted |
+| [0006](0006-terminology-and-naming.md)                        | Terminology and naming                        | Accepted |
 
 ## Creating or changing an ADR
 
