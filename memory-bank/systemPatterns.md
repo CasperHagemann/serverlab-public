@@ -21,8 +21,7 @@ scripts/
 tests/                 bats-core suite for scripts/lib/*.sh
 .githooks/pre-commit   calls check.sh --check
 memory-bank/           this Memory Bank
-.clinerules/           instructions/ (copied from GitHub awesome-copilot),
-                       rules/ (copied from Cline's reference repo),
+.clinerules/           rules/ (copied from Cline's reference repo),
                        custom/ (written for this project; the only
                        folder edited by hand)
 .agents/               upstream-synced; never edit or reformat
