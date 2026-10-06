@@ -24,7 +24,6 @@ memory-bank/           this Memory Bank
 .clinerules/           rules/ (copied from Cline's reference repo),
                        custom/ (written for this project; the only
                        folder edited by hand)
-.agents/               upstream-synced; never edit or reformat
 ```
 
 ## Design doc structure
@@ -65,8 +64,8 @@ Defined in [ADR-0002](../docs/decisions/0002-terminology-and-naming.md): the
   stop and report manual undo steps, never roll back automatically.
 - **Non-mutating pre-commit hook.** `check.sh --check` uses diff/check modes
   only, on staged files only; committed content equals reviewed content.
-- **`.clinerules/` and `.agents/`** are excluded from `prettier`
-  (`.prettierignore`) and `ec` (inline `-exclude` in `check.sh`).
+- **`.clinerules/`** is excluded from `prettier` (`.prettierignore`) and
+  `ec` (inline `-exclude` in `check.sh`).
 - **Squash-merge only.** Default squash message is the PR title.
 
 ## check.sh

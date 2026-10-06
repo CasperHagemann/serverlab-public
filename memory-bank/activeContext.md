@@ -44,7 +44,7 @@ Proxmox VE 9.2 (Debian 13 trixie).
 - Inventory files hold concrete values only.
 - Use "control node" (where development happens) and
   "Proxmox node". Never "workstation".
-- Hidden folders (`.agents/`, `.cline/`, and `.clinerules/` except
+- Hidden folders (`.cline/`, and `.clinerules/` except
   `.clinerules/custom/`) are kept as they are. `.clinerules/custom/` holds
   project rules written by hand, always active (no frontmatter).
 

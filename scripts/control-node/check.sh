@@ -171,7 +171,7 @@ for tool in shfmt prettier shellcheck ec bats; do
   fi
 done
 
-exclude_pattern='^\.clinerules/|^\.agents/'
+exclude_pattern='^\.clinerules/'
 
 if [[ "${check_mode}" == true ]]; then
   # Staged files only (added/copied/modified), excluding the same paths

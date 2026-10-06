@@ -24,21 +24,21 @@ The terms "control node" and "Proxmox node" are defined in
 
 ## Repository layout
 
-| Path                                                  | Purpose                                                            |
-| ----------------------------------------------------- | ------------------------------------------------------------------ |
-| `config/`                                             | Node config read by the scripts, one `.env` file per node          |
-| `docs/design/`                                        | One design doc per area: configuration, verification, planned work |
-| `docs/decisions/`                                     | Architecture Decision Records                                      |
-| `docs/runbooks/`                                      | Operational procedures                                             |
-| `docs/control-node.md`                                | Control node setup                                                 |
-| `inventory/`                                          | Hardware facts and the site network plan                           |
-| `scripts/proxmox-node/`                               | One script per area, run on the Proxmox node                       |
-| `scripts/control-node/`                               | Checks, formatters and git hooks, run on the control node          |
-| `scripts/lib/`                                        | Shared bash libraries                                              |
-| `scripts/remote-run.sh`                               | Runs the Proxmox-node scripts over one SSH connection              |
-| `tests/`                                              | bats tests for the libraries                                       |
-| `memory-bank/`, `.clinerules/`, `.cline/`, `.agents/` | Context and rules for AI assistants                                |
-| `.vscode/`, `serverlab.code-workspace`                | Editor settings                                                    |
+| Path                                      | Purpose                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| `config/`                                 | Node config read by the scripts, one `.env` file per node          |
+| `docs/design/`                            | One design doc per area: configuration, verification, planned work |
+| `docs/decisions/`                         | Architecture Decision Records                                      |
+| `docs/runbooks/`                          | Operational procedures                                             |
+| `docs/control-node.md`                    | Control node setup                                                 |
+| `inventory/`                              | Hardware facts and the site network plan                           |
+| `scripts/proxmox-node/`                   | One script per area, run on the Proxmox node                       |
+| `scripts/control-node/`                   | Checks, formatters and git hooks, run on the control node          |
+| `scripts/lib/`                            | Shared bash libraries                                              |
+| `scripts/remote-run.sh`                   | Runs the Proxmox-node scripts over one SSH connection              |
+| `tests/`                                  | bats tests for the libraries                                       |
+| `memory-bank/`, `.clinerules/`, `.cline/` | Context and rules for AI assistants                                |
+| `.vscode/`, `serverlab.code-workspace`    | Editor settings                                                    |
 
 ## License
 
