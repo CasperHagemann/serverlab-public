@@ -13,6 +13,23 @@ detailed target state; ADRs hold the decision and its reasoning.
 - Do not propose an option an ADR already rejected without saying that it
   was rejected and why.
 
+## Which ADR applies
+
+| Change to | Read |
+| --- | --- |
+| Terms, file, key or function names | ADR-0002 |
+| Where a fact or file lives | ADR-0003 |
+| Choice of tooling | ADR-0004 |
+| Any shell code, options, exit status | ADR-0005 |
+| `scripts/lib/` | ADR-0006 |
+| Tests, `check.sh`, hooks | ADR-0007 |
+| `scripts/proxmox-node/`, new area | ADR-0008 |
+| `config/proxmox-nodes/*.env`, keys | ADR-0009 |
+| `scripts/remote-run.sh` | ADR-0010 |
+| Docs, READMEs, memory bank, ADRs | ADR-0011 |
+| Storage | ADR-0012 |
+| CPU, I/O, memory priority | ADR-0013 |
+
 ## When an ADR is needed
 
 Write or update an ADR when a decision:

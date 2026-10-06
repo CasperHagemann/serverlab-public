@@ -1,4 +1,4 @@
-# 0004. Local guest storage: btrfs
+# 0012. Local guest storage: btrfs
 
 Status: Accepted
 

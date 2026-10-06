@@ -55,8 +55,8 @@ sudo pacman -S shfmt shellcheck editorconfig-checker prettier bats
 | `bats`       | `bats`                 | runs `tests/*.bats` (`scripts/lib/` unit tests)                 | no — reports only    |
 
 `shfmt` and `prettier` are formatters: they rewrite files to match
-[`.editorconfig`](../.editorconfig)'s rules (tabs/4-space for `.sh`,
-2-space for `.json`, etc.), and never change what the code does.
+[`.editorconfig`](../.editorconfig)'s rules (2-space indent for `.sh`,
+`.json`, etc.), and never change what the code does.
 `shellcheck` is a linter: it never touches formatting and instead looks for
 actual bugs (unquoted variables, unreachable code, etc.) — see
 [`scripts/README.md`](../scripts/README.md) for the conventions it enforces.
@@ -64,7 +64,7 @@ actual bugs (unquoted variables, unreachable code, etc.) — see
 `.editorconfig` after the formatters have run. `bats` runs the test suite
 under [`tests/`](../tests/README.md) — control node only, never installed
 on Proxmox nodes (see
-[ADR-0003](decisions/0003-proxmox-node-script-structure-and-conventions.md)).
+[ADR-0007](decisions/0007-testing-and-quality-gates.md)).
 
 Run all five in one go before committing:
 
@@ -220,7 +220,7 @@ holds the stages that can break the connection, the second the rest. Each
 call needs one login.
 
 Rules that keep this possible (see
-[ADR-0003](decisions/0003-proxmox-node-script-structure-and-conventions.md)):
+[ADR-0010](decisions/0010-remote-execution.md)):
 
 - A stage runs on its own and does not need another stage to have run.
 - A stage never reboots the node. If a change needs a reboot, the stage

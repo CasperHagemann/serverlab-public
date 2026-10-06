@@ -1,4 +1,4 @@
-# 0006. Terminology and naming
+# 0002. Terminology and naming
 
 Status: Accepted
 
@@ -37,8 +37,9 @@ Names:
   `scripts/proxmox-node/<area>.sh`. ADRs are `NNNN-short-title.md`.
 - Node config files are `config/proxmox-nodes/<hostname>.env`. Config keys
   are `UPPER_CASE` with underscores.
-- Library functions are `pkg::function`, as in ADR-0003. Other shell
-  style follows the Google Shell Style Guide, also adopted in ADR-0003.
+- Library functions are `pkg::function`, as in
+  [ADR-0006](0006-shared-library-design.md). Other shell style follows the
+  Google Shell Style Guide, see [ADR-0005](0005-shell-coding-standards.md).
 - Markdown and shell formatting is set by Prettier, shfmt and
   `.editorconfig`, and checked by `scripts/control-node/check.sh`.
 

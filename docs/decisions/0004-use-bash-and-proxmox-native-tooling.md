@@ -1,4 +1,4 @@
-# 0002. Use bash and Proxmox native tooling
+# 0004. Use bash and Proxmox native tooling
 
 Status: Accepted
 

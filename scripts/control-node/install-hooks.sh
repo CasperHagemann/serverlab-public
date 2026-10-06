@@ -17,4 +17,4 @@ git config core.hooksPath .githooks
 
 log::info "Git hooks installed (core.hooksPath = .githooks)."
 log::info "pre-commit now runs" \
-	"'./scripts/control-node/check.sh --check' on staged files."
+  "'./scripts/control-node/check.sh --check' on staged files."

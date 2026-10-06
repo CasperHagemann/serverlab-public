@@ -1,6 +1,6 @@
 # Design: Resource Management
 
-> Decision: [ADR-0005](../decisions/0005-node-resource-priority-and-fair-sharing.md).
+> Decision: [ADR-0013](../decisions/0013-node-resource-priority-and-fair-sharing.md).
 
 ## Scope
 
@@ -32,7 +32,7 @@ All keys must be set. An empty value reverts that setting.
 
 ### CPU and I/O weights
 
-`HOST_CPU_WEIGHT` is the `CPUWeight` and `HOST_IO_WEIGHT` the `IOWeight` of `system.slice` and `user.slice`, for example `1000` and `10000` (default 100). BFQ scales the I/O weight to 1-1000, so `10000` gives BFQ weight `1000`.
+`RESOURCE_CPU_WEIGHT` is the `CPUWeight` and `RESOURCE_IO_WEIGHT` the `IOWeight` of `system.slice` and `user.slice`, for example `1000` and `10000` (default 100). BFQ scales the I/O weight to 1-1000, so `10000` gives BFQ weight `1000`.
 
 | Value of the weight keys | Effect                              |
 | ------------------------ | ----------------------------------- |
@@ -42,23 +42,23 @@ All keys must be set. An empty value reverts that setting.
 
 ### Memory protection
 
-`HOST_MEMORY_LOW` is the memory of `system.slice` protected from reclaim, for example `4G`. It is protection under memory pressure, not a reservation.
+`RESOURCE_MEMORY_LOW` is the memory of `system.slice` protected from reclaim, for example `4G`. It is protection under memory pressure, not a reservation.
 
-| Value of `HOST_MEMORY_LOW` | Effect                                   |
-| -------------------------- | ---------------------------------------- |
-| A size (`4G`, `512M`)      | Sets `MemoryLow` of `system.slice`       |
-| Empty `""`                 | Reverts to `MemoryLow` 0 (no protection) |
-| Unset                      | The script stops with an error           |
+| Value of `RESOURCE_MEMORY_LOW` | Effect                                   |
+| ------------------------------ | ---------------------------------------- |
+| A size (`4G`, `512M`)          | Sets `MemoryLow` of `system.slice`       |
+| Empty `""`                     | Reverts to `MemoryLow` 0 (no protection) |
+| Unset                          | The script stops with an error           |
 
 ### I/O scheduler
 
-`IO_SCHEDULER` is the scheduler of the OS disk (`LOCAL_DATA_DISK` or auto-detected), for example `bfq`. BFQ is required for I/O weights.
+`RESOURCE_IO_SCHEDULER` is the scheduler of the OS disk (`STORAGE_DISK` or auto-detected), for example `bfq`. BFQ is required for I/O weights.
 
-| Value of `IO_SCHEDULER` | Effect                                                              |
-| ----------------------- | ------------------------------------------------------------------- |
-| A scheduler name        | Set on the OS disk by a udev rule; other devices keep their default |
-| Empty `""`              | Restores the scheduler saved in `/etc/io-scheduler.orig`            |
-| Unset                   | The script stops with an error                                      |
+| Value of `RESOURCE_IO_SCHEDULER` | Effect                                                              |
+| -------------------------------- | ------------------------------------------------------------------- |
+| A scheduler name                 | Set on the OS disk by a udev rule; other devices keep their default |
+| Empty `""`                       | Restores the scheduler saved in `/etc/io-scheduler.orig`            |
+| Unset                            | The script stops with an error                                      |
 
 ### Files written
 
@@ -97,17 +97,17 @@ daemon-reload`, then writes the values to the running slices.
 
 ## Verification
 
-| Check                                                                             | Expected result                                                                                       |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `cat /sys/fs/cgroup/system.slice/{cpu.weight,io.bfq.weight,io.weight,memory.low}` | `<HOST_CPU_WEIGHT>`, `default <BFQ weight>`, `default <HOST_IO_WEIGHT>`, `<HOST_MEMORY_LOW>` in bytes |
-| `cat /sys/fs/cgroup/user.slice/{cpu.weight,io.bfq.weight}`                        | `<HOST_CPU_WEIGHT>`, `default <BFQ weight>`                                                           |
-| `grep -H . /sys/block/*/queue/scheduler`                                          | The OS disk shows `[<IO_SCHEDULER>]`                                                                  |
-| `systemctl status serverlab-resource-priority.service`                            | enabled, `active (exited)`, all `ExecStart` 0                                                         |
-| `ls /run/systemd/system.control/`                                                 | No `system.slice.d` or `user.slice.d`                                                                 |
-| `resource-management.sh --dry-run` after a reboot                                 | Reports nothing to do                                                                                 |
+| Check                                                                             | Expected result                                                                                                   |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `cat /sys/fs/cgroup/system.slice/{cpu.weight,io.bfq.weight,io.weight,memory.low}` | `<RESOURCE_CPU_WEIGHT>`, `default <BFQ weight>`, `default <RESOURCE_IO_WEIGHT>`, `<RESOURCE_MEMORY_LOW>` in bytes |
+| `cat /sys/fs/cgroup/user.slice/{cpu.weight,io.bfq.weight}`                        | `<RESOURCE_CPU_WEIGHT>`, `default <BFQ weight>`                                                                   |
+| `grep -H . /sys/block/*/queue/scheduler`                                          | The OS disk shows `[<RESOURCE_IO_SCHEDULER>]`                                                                     |
+| `systemctl status serverlab-resource-priority.service`                            | enabled, `active (exited)`, all `ExecStart` 0                                                                     |
+| `ls /run/systemd/system.control/`                                                 | No `system.slice.d` or `user.slice.d`                                                                             |
+| `resource-management.sh --dry-run` after a reboot                                 | Reports nothing to do                                                                                             |
 
 Repair test: after `systemctl set-property --runtime system.slice
-CPUWeight=200`, `--dry-run` shows `cpu.weight 200 -> <HOST_CPU_WEIGHT>`, `--yes` repairs
+CPUWeight=200`, `--dry-run` shows `cpu.weight 200 -> <RESOURCE_CPU_WEIGHT>`, `--yes` repairs
 it, `/run/systemd/system.control/` is left empty and a further `--dry-run`
 reports nothing to do.
 
@@ -122,7 +122,7 @@ of the removed files are kept.
 
 ## Decision records
 
-- [ADR-0005](../decisions/0005-node-resource-priority-and-fair-sharing.md):
+- [ADR-0013](../decisions/0013-node-resource-priority-and-fair-sharing.md):
   node priority by weights, not limits.
 
 ## Planned

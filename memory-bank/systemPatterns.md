@@ -38,16 +38,23 @@ anything not implemented.
 
 ## Key decisions
 
-| Decision                                      | Record                                                                              |
-| --------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Bash + Proxmox-native tooling                 | [ADR-0002](../docs/decisions/0002-use-bash-and-proxmox-native-tooling.md)           |
-| Proxmox-node script structure and conventions | [ADR-0003](../docs/decisions/0003-proxmox-node-script-structure-and-conventions.md) |
-| btrfs `local-data` for local guest storage    | [ADR-0004](../docs/decisions/0004-local-guest-storage-btrfs.md)                     |
-| Terminology and naming                        | [ADR-0006](../docs/decisions/0006-terminology-and-naming.md)                        |
+| Decision                                   | Record                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| Bash + Proxmox-native tooling              | [ADR-0004](../docs/decisions/0004-use-bash-and-proxmox-native-tooling.md)    |
+| Repository layout and sources of truth     | [ADR-0003](../docs/decisions/0003-repository-layout-and-sources-of-truth.md) |
+| Shell coding standards (Google guide)      | [ADR-0005](../docs/decisions/0005-shell-coding-standards.md)                 |
+| Shared library design                      | [ADR-0006](../docs/decisions/0006-shared-library-design.md)                  |
+| Testing and quality gates                  | [ADR-0007](../docs/decisions/0007-testing-and-quality-gates.md)              |
+| Proxmox-node script contract               | [ADR-0008](../docs/decisions/0008-proxmox-node-script-contract.md)           |
+| Node configuration                         | [ADR-0009](../docs/decisions/0009-node-configuration.md)                     |
+| Remote execution                           | [ADR-0010](../docs/decisions/0010-remote-execution.md)                       |
+| Documentation structure                    | [ADR-0011](../docs/decisions/0011-documentation-structure.md)                |
+| btrfs `local-data` for local guest storage | [ADR-0012](../docs/decisions/0012-local-guest-storage-btrfs.md)              |
+| Terminology and naming                     | [ADR-0002](../docs/decisions/0002-terminology-and-naming.md)                 |
 
 ## Terminology
 
-Defined in [ADR-0006](../docs/decisions/0006-terminology-and-naming.md): the
+Defined in [ADR-0002](../docs/decisions/0002-terminology-and-naming.md): the
 **control node** and the **Proxmox node**. Use these terms uniformly.
 
 ## Patterns

@@ -20,7 +20,7 @@ containers, workloads) are out of scope and belong in a separate project.
 | Find the values of a node                       | [`config/proxmox-nodes/`](config/proxmox-nodes/) |
 
 The terms "control node" and "Proxmox node" are defined in
-[ADR-0006](docs/decisions/0006-terminology-and-naming.md).
+[ADR-0002](docs/decisions/0002-terminology-and-naming.md).
 
 ## Repository layout
 

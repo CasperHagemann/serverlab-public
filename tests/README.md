@@ -2,7 +2,7 @@
 
 Unit tests for `scripts/lib/*.sh`, using [bats-core](https://github.com/bats-core/bats-core).
 Control-node only — never installed on Proxmox nodes (see
-[`docs/decisions/0003-proxmox-node-script-structure-and-conventions.md`](../docs/decisions/0003-proxmox-node-script-structure-and-conventions.md)).
+[ADR-0007](../docs/decisions/0007-testing-and-quality-gates.md)).
 
 ## Running
 
@@ -25,22 +25,11 @@ pre-commit hook does not run the tests.
 
 ## Conventions
 
-- Tests source the library file directly (`source
-"${BATS_TEST_DIRNAME}/../../scripts/lib/<name>.sh"`) rather than going
-  through `common.sh`, so each file's tests only depend on what that file
-  itself needs.
-- Prefer calling the function directly (not via bats' `run`) when a test
-  needs to observe a side effect in the test's own shell afterward (e.g.
-  a variable `prompt::value` or `config::load` assigned) — `run` forks a
-  subshell, so changes made inside it aren't visible to the rest of the
-  test.
-- **Only functions with branching/parsing logic are tested** — e.g.
-  `pve::wait_task`'s polling loop, `net::iface_addrs --global`'s scope
-  filtering, `net::default_gateway`'s route-table parsing. Thin
-  pass-through wrappers around a single external command (most of
-  `pve.sh`, much of `net.sh`) are not tested.
-- Behavior that depends on real Proxmox node state (applying network
-  changes, pre-flight refusals against the live network config) is
-  verified manually against the Proxmox node via `scripts/remote-run.sh`: dry-run,
-  decline, `--yes` apply, then a no-op re-run. See
-  [ADR-0003](../docs/decisions/0003-proxmox-node-script-structure-and-conventions.md).
+What to test and what to check by hand is in
+[ADR-0007](../docs/decisions/0007-testing-and-quality-gates.md). Practical
+hints:
+
+- Source the library file directly, not `common.sh`, so a test depends only
+  on what its file needs.
+- Call a function directly, not through `run`, when the test must see a
+  variable it sets: `run` uses a subshell.

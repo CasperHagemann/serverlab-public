@@ -21,15 +21,8 @@ script of the same name in [`scripts/proxmox-node/`](../../scripts/proxmox-node/
 
 ## Where facts live
 
-Each fact has one owner.
-
-| Location                              | Owns                                                                   |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| `config/proxmox-nodes/<hostname>.env` | Every value specific to one node                                       |
-| `inventory/`                          | Hardware facts and the site network plan                               |
-| `docs/design/`                        | What is configured and how; config keys are named, values not repeated |
-| `docs/decisions/`                     | Why a choice was made                                                  |
-
+Each fact has one owner; see
+[ADR-0003](../decisions/0003-repository-layout-and-sources-of-truth.md).
 A short reason for a node value goes as a comment next to it in the `.env`.
 
 ## Format of a configuration section

@@ -16,19 +16,11 @@ config/
 Scripts default to `config/proxmox-nodes/$(hostname -f).env` and accept
 `--config <file>` to override.
 
-## Format
+## Format and keys
 
-Plain `KEY=value` lines, single-line arrays of quoted plain words
-(`KEY=("a.example" "b.example")`, `KEY=()` for empty), and `#` comments only —
-no command substitution, variable expansion, or control flow. `config::load` (in
-[`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
-else before sourcing the file.
-
-## Keys
-
-All keys a script reads must be set. An empty value has a defined meaning, and
-a missing key stops the script. Each key is described, with its values and what
-they do, in the design doc of its area:
+The format, the rules for keys and secrets are in
+[ADR-0009](../docs/decisions/0009-node-configuration.md). Each key is
+described in the design doc of its area:
 
 | Area                | Design doc                                                        |
 | ------------------- | ----------------------------------------------------------------- |
@@ -36,13 +28,6 @@ they do, in the design doc of its area:
 | Networking          | [`networking.md`](../docs/design/networking.md)                   |
 | Storage             | [`storage.md`](../docs/design/storage.md)                         |
 | Resource management | [`resource-management.md`](../docs/design/resource-management.md) |
-
-## Secrets
-
-Never put passwords, API tokens, or certificates in these files. This
-directory is always committed — everything here is treated as ordinary,
-non-sensitive infrastructure data (see root `.gitignore` for the few things
-that are excluded, e.g. `*.secret`).
 
 ## Relationship to `inventory/`
 

@@ -39,3 +39,15 @@ setup() {
 	[ "$status" -eq 0 ]
 	[[ "$output" == *"Could not record"* ]]
 }
+
+@test "log::die exits 1 by default" {
+	run log::die "boom"
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"[ERROR] boom"* ]]
+}
+
+@test "log::die --code exits with the given status" {
+	run log::die --code 2 "bad usage"
+	[ "$status" -eq 2 ]
+	[[ "$output" == *"[ERROR] bad usage"* ]]
+}

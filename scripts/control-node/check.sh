@@ -21,8 +21,7 @@
 #   7. bats        — runs tests/ (recursively), if the directory exists
 #
 # Runs on the control node. The 80-column limit comes from the Google Shell
-# Style Guide, which neither shfmt nor shellcheck enforces; a tab counts as
-# 4 columns (see .editorconfig).
+# Style Guide, which neither shfmt nor shellcheck enforces.
 #
 # Requires: shfmt, prettier, shellcheck, ec (editorconfig-checker), bats —
 # see docs/control-node.md for install instructions.
@@ -36,43 +35,68 @@ cd "${repo_root}"
 # shellcheck source=scripts/lib/common.sh
 source "scripts/lib/common.sh"
 
+usage() {
+  cat <<'EOF'
+Usage: check.sh [--check] [--help]
+
+  (no option)  Fix mode: format the whole repo in place, lint, run bats
+  --check      Check mode: staged files only, no changes, no bats
+  -h, --help   Show this help
+
+Exit status:
+  0  All checks pass, or --help
+  1  A check failed or a tool is missing
+  2  Usage error
+EOF
+}
+
 check_mode=false
-if [[ "${1:-}" == "--check" ]]; then
-	check_mode=true
-fi
+case "${1:-}" in
+  "") ;;
+  --check) check_mode=true ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    log::error "Unknown argument: $1"
+    usage >&2
+    exit 2
+    ;;
+esac
 
 on_failure() {
-	if [[ "${check_mode}" == true ]]; then
-		log::error "Pre-commit checks failed — commit aborted." \
-			"No files were modified."
-		log::error "Run './scripts/control-node/check.sh' to auto-fix," \
-			"then re-stage and commit."
-		log::error "To bypass (not recommended): git commit --no-verify"
-	else
-		log::error "Check failed — see output above."
-	fi
+  if [[ "${check_mode}" == true ]]; then
+    log::error "Pre-commit checks failed — commit aborted." \
+      "No files were modified."
+    log::error "Run './scripts/control-node/check.sh' to auto-fix," \
+      "then re-stage and commit."
+    log::error "To bypass (not recommended): git commit --no-verify"
+  else
+    log::error "Check failed — see output above."
+  fi
 }
 trap on_failure ERR
 
 # check_line_length <file...>
 # Prints "<file>:<line>: <n> columns (max 80)" for every line over 80
-# columns, counting a tab as 4 columns. Returns 1 if any line is too long.
+# columns. Returns 1 if any line is too long.
 check_line_length() {
-	local file
-	local failed=false
-	local awk_prog='length($0) > 80 {
-		printf "%s:%d: %d columns (max 80)\n", f, NR, length($0)
-		bad = 1
-	}
-	END { exit bad }'
+  local file
+  local failed=false
+  local awk_prog='length($0) > 80 {
+    printf "%s:%d: %d columns (max 80)\n", f, NR, length($0)
+    bad = 1
+  }
+  END { exit bad }'
 
-	for file in "$@"; do
-		if ! expand -t4 "${file}" | awk -v f="${file}" "${awk_prog}"; then
-			failed=true
-		fi
-	done
+  for file in "$@"; do
+    if ! awk -v f="${file}" "${awk_prog}" "${file}"; then
+      failed=true
+    fi
+  done
 
-	[[ "${failed}" == false ]]
+  [[ "${failed}" == false ]]
 }
 
 # check_adrs [dir]
@@ -82,149 +106,149 @@ check_line_length() {
 # directions. Prints one line per problem. Returns 1 if any problem is
 # found.
 check_adrs() {
-	local dir="${1:-docs/decisions}"
-	local failed=false
-	local file base num sections empty index link
+  local dir="${1:-docs/decisions}"
+  local failed=false
+  local file base num sections empty index link
 
-	problem() {
-		log::error "ADR: $*"
-		failed=true
-	}
+  problem() {
+    log::error "ADR: $*"
+    failed=true
+  }
 
-	index="${dir}/README.md"
-	[[ -f "${index}" ]] || problem "${index} is missing"
+  index="${dir}/README.md"
+  [[ -f "${index}" ]] || problem "${index} is missing"
 
-	for file in "${dir}"/[0-9]*.md; do
-		[[ -f "${file}" ]] || continue
-		base="$(basename "${file}")"
-		num="${base%%-*}"
+  for file in "${dir}"/[0-9]*.md; do
+    [[ -f "${file}" ]] || continue
+    base="$(basename "${file}")"
+    num="${base%%-*}"
 
-		[[ "${base}" =~ ^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*\.md$ ]] ||
-			problem "${base}: file name must be NNNN-kebab-case-title.md"
-		head -n 1 "${file}" | grep -qE "^# ${num}\. .+" ||
-			problem "${base}: first line must be '# ${num}. Title'"
-		grep -qE '^Status: (Proposed|Accepted)$' "${file}" ||
-			problem "${base}: needs 'Status: Proposed' or 'Status: Accepted'"
-		grep -qE '^Date: [0-9]{4}-[0-9]{2}-[0-9]{2}$' "${file}" ||
-			problem "${base}: needs 'Date: YYYY-MM-DD'"
+    [[ "${base}" =~ ^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*\.md$ ]] ||
+      problem "${base}: file name must be NNNN-kebab-case-title.md"
+    head -n 1 "${file}" | grep -qE "^# ${num}\. .+" ||
+      problem "${base}: first line must be '# ${num}. Title'"
+    grep -qE '^Status: (Proposed|Accepted)$' "${file}" ||
+      problem "${base}: needs 'Status: Proposed' or 'Status: Accepted'"
+    grep -qE '^Date: [0-9]{4}-[0-9]{2}-[0-9]{2}$' "${file}" ||
+      problem "${base}: needs 'Date: YYYY-MM-DD'"
 
-		sections="$(grep -E '^## ' "${file}" | tr '\n' '|')"
-		[[ "${sections}" == "## Context|## Decision|## Consequences|" ]] ||
-			problem "${base}: sections must be exactly Context, Decision," \
-				"Consequences, in that order"
+    sections="$(grep -E '^## ' "${file}" | tr '\n' '|')"
+    [[ "${sections}" == "## Context|## Decision|## Consequences|" ]] ||
+      problem "${base}: sections must be exactly Context, Decision," \
+        "Consequences, in that order"
 
-		empty="$(awk '
-			function flush() { if (sec != "" && !text) print sec }
-			/^## / { flush(); sec = $0; text = 0; next }
-			sec != "" && /[^[:space:]]/ { text = 1 }
-			END { flush() }
-		' "${file}" | tr '\n' ' ')"
-		[[ -z "${empty}" ]] ||
-			problem "${base}: empty section(s): ${empty}" \
-				"(write 'Not applicable: <reason>.')"
+    empty="$(awk '
+      function flush() { if (sec != "" && !text) print sec }
+      /^## / { flush(); sec = $0; text = 0; next }
+      sec != "" && /[^[:space:]]/ { text = 1 }
+      END { flush() }
+    ' "${file}" | tr '\n' ' ')"
+    [[ -z "${empty}" ]] ||
+      problem "${base}: empty section(s): ${empty}" \
+        "(write 'Not applicable: <reason>.')"
 
-		if [[ -f "${index}" ]] && ! grep -qF "](${base})" "${index}"; then
-			problem "${base}: no link in ${index}"
-		fi
-	done
+    if [[ -f "${index}" ]] && ! grep -qF "](${base})" "${index}"; then
+      problem "${base}: no link in ${index}"
+    fi
+  done
 
-	if [[ -f "${index}" ]]; then
-		while IFS= read -r link; do
-			[[ -f "${dir}/${link}" ]] ||
-				problem "${index}: link to missing file ${link}"
-		done < <(grep -oE '\]\([0-9]{4}-[^)]*\.md\)' "${index}" |
-			sed -E 's/^\]\(//; s/\)$//')
-	fi
+  if [[ -f "${index}" ]]; then
+    while IFS= read -r link; do
+      [[ -f "${dir}/${link}" ]] ||
+        problem "${index}: link to missing file ${link}"
+    done < <(grep -oE '\]\([0-9]{4}-[^)]*\.md\)' "${index}" |
+      sed -E 's/^\]\(//; s/\)$//')
+  fi
 
-	[[ "${failed}" == false ]]
+  [[ "${failed}" == false ]]
 }
 
 for tool in shfmt prettier shellcheck ec bats; do
-	if ! command -v "${tool}" >/dev/null 2>&1; then
-		log::error "${tool} not found —" \
-			"see docs/control-node.md for install instructions."
-		exit 1
-	fi
+  if ! command -v "${tool}" >/dev/null 2>&1; then
+    log::error "${tool} not found —" \
+      "see docs/control-node.md for install instructions."
+    exit 1
+  fi
 done
 
 exclude_pattern='^\.clinerules/|^\.agents/'
 
 if [[ "${check_mode}" == true ]]; then
-	# Staged files only (added/copied/modified), excluding the same paths
-	# .editorconfig checking skips repo-wide, and files that no longer exist
-	# (e.g. staged deletions).
-	mapfile -t staged_files < <(
-		git diff --cached --name-only --diff-filter=ACM |
-			grep -Ev "${exclude_pattern}" || true
-	)
+  # Staged files only (added/copied/modified), excluding the same paths
+  # .editorconfig checking skips repo-wide, and files that no longer exist
+  # (e.g. staged deletions).
+  mapfile -t staged_files < <(
+    git diff --cached --name-only --diff-filter=ACM |
+      grep -Ev "${exclude_pattern}" || true
+  )
 
-	if [[ ${#staged_files[@]} -eq 0 ]]; then
-		log::info "No relevant staged files — nothing to check."
-		exit 0
-	fi
+  if [[ ${#staged_files[@]} -eq 0 ]]; then
+    log::info "No relevant staged files — nothing to check."
+    exit 0
+  fi
 
-	staged_sh=()
-	staged_fmt=() # .json/.md, for prettier
-	for f in "${staged_files[@]}"; do
-		[[ -f "${f}" ]] || continue
-		case "${f}" in
-		*.sh) staged_sh+=("${f}") ;;
-		*.json | *.md) staged_fmt+=("${f}") ;;
-		esac
-	done
+  staged_sh=()
+  staged_fmt=() # .json/.md, for prettier
+  for f in "${staged_files[@]}"; do
+    [[ -f "${f}" ]] || continue
+    case "${f}" in
+      *.sh) staged_sh+=("${f}") ;;
+      *.json | *.md) staged_fmt+=("${f}") ;;
+    esac
+  done
 
-	if [[ ${#staged_sh[@]} -gt 0 ]]; then
-		log::info "Checking shell formatting (shfmt -d)..."
-		shfmt -d "${staged_sh[@]}"
+  if [[ ${#staged_sh[@]} -gt 0 ]]; then
+    log::info "Checking shell formatting (shfmt -d)..."
+    shfmt -d "${staged_sh[@]}"
 
-		log::info "Linting shell scripts (shellcheck)..."
-		shellcheck -S warning "${staged_sh[@]}"
+    log::info "Linting shell scripts (shellcheck)..."
+    shellcheck -S warning "${staged_sh[@]}"
 
-		log::info "Checking line length (max 80 columns)..."
-		check_line_length "${staged_sh[@]}"
-	fi
+    log::info "Checking line length (max 80 columns)..."
+    check_line_length "${staged_sh[@]}"
+  fi
 
-	if [[ ${#staged_fmt[@]} -gt 0 ]]; then
-		log::info "Checking JSON/Markdown formatting (prettier --check)..."
-		prettier --check "${staged_fmt[@]}"
-	fi
+  if [[ ${#staged_fmt[@]} -gt 0 ]]; then
+    log::info "Checking JSON/Markdown formatting (prettier --check)..."
+    prettier --check "${staged_fmt[@]}"
+  fi
 
-	if printf '%s\n' "${staged_files[@]}" | grep -q '^docs/decisions/'; then
-		log::info "Checking ADR structure and index..."
-		check_adrs
-	fi
+  if printf '%s\n' "${staged_files[@]}" | grep -q '^docs/decisions/'; then
+    log::info "Checking ADR structure and index..."
+    check_adrs
+  fi
 
-	log::info "Verifying staged files against .editorconfig (ec)..."
-	ec "${staged_files[@]}"
+  log::info "Verifying staged files against .editorconfig (ec)..."
+  ec "${staged_files[@]}"
 
-	log::info "All staged files pass. No files were modified."
+  log::info "All staged files pass. No files were modified."
 else
-	log::info "Formatting shell scripts (shfmt)..."
-	shfmt -w .
+  log::info "Formatting shell scripts (shfmt)..."
+  shfmt -w .
 
-	log::info "Formatting JSON/Markdown (prettier)..."
-	prettier --write .
+  log::info "Formatting JSON/Markdown (prettier)..."
+  prettier --write .
 
-	log::info "Linting shell scripts (shellcheck)..."
-	# -S warning: suppress info-level notices (e.g. SC1091 on `source`),
-	# which are not actionable failures for this script's purposes.
-	find . -name '*.sh' -not -path './.git/*' -print0 |
-		xargs -0 shellcheck -S warning
+  log::info "Linting shell scripts (shellcheck)..."
+  # -S warning: suppress info-level notices (e.g. SC1091 on `source`),
+  # which are not actionable failures for this script's purposes.
+  find . -name '*.sh' -not -path './.git/*' -print0 |
+    xargs -0 shellcheck -S warning
 
-	log::info "Checking line length (max 80 columns)..."
-	mapfile -t all_sh < <(find . -name '*.sh' -not -path './.git/*')
-	check_line_length "${all_sh[@]}"
+  log::info "Checking line length (max 80 columns)..."
+  mapfile -t all_sh < <(find . -name '*.sh' -not -path './.git/*')
+  check_line_length "${all_sh[@]}"
 
-	log::info "Checking ADR structure and index..."
-	check_adrs
+  log::info "Checking ADR structure and index..."
+  check_adrs
 
-	log::info "Verifying against .editorconfig (ec)..."
-	ec -exclude "${exclude_pattern}"
+  log::info "Verifying against .editorconfig (ec)..."
+  ec -exclude "${exclude_pattern}"
 
-	if [[ -d tests ]]; then
-		log::info "Running bats test suite (tests/)..."
-		bats --recursive tests/
-	fi
+  if [[ -d tests ]]; then
+    log::info "Running bats test suite (tests/)..."
+    bats --recursive tests/
+  fi
 
-	log::info "Check complete."
+  log::info "Check complete."
 fi
