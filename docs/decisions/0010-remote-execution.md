@@ -33,5 +33,16 @@ file matching its own `hostname -f`.
   working tree.
 - The full bundle is sent on every run, at the cost of some SSH traffic.
 - Line numbers in errors refer to the bundle, not the files.
+- A stage that changes the network (`ifreload -a`) can drop the SSH session,
+  so later stages do not run. Scripts ignore `SIGHUP` while they apply and
+  verify; re-running reports "Nothing to do" for finished stages.
+- The reboot reminder is kept in `/run`, which is cleared on boot, so it is
+  shown at the start and end of every run until the node is rebooted, even if
+  the session dropped before the summary.
+- A dry run of several stages shows what each stage would do on its own, not
+  on a node that earlier stages have changed.
+- Rejected: sharing one SSH connection between calls (`ControlMaster`). If
+  the script is killed hard, the connection stays open for the
+  `ControlPersist` time and can be used without any input.
 - Stage options and exit status are those of
   [ADR-0008](0008-proxmox-node-script-contract.md).

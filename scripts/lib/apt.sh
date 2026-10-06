@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # apt.sh — APT deb822 (.sources) helpers. Functions only; they print to
 # stdout and never touch the filesystem.

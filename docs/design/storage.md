@@ -49,7 +49,7 @@ Script: `scripts/proxmox-node/storage.sh` ([`scripts/README.md`](../../scripts/R
 
 Re-running is idempotent. If the guest storage is mounted and registered, only re-enabled `STORAGE_OS_DISABLE` entries are disabled. If nothing differs, the script reports "nothing to do".
 
-On failure after the apply step starts, the script stops and prints manual undo steps (GPT backup restore, fstab backup restore); see [ADR-0008](../decisions/0008-proxmox-node-script-contract.md).
+The manual undo steps printed on failure are the GPT backup restore and the fstab backup restore.
 
 ## Verification
 
@@ -65,7 +65,5 @@ On failure after the apply step starts, the script stops and prints manual undo 
 - [ADR-0012](../decisions/0012-local-guest-storage-btrfs.md): btrfs for local guest storage.
 
 ## Planned
-
-> Not implemented.
 
 None.

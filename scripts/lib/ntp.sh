@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # ntp.sh — chrony configuration rendering helpers. Functions only; they
 # print to stdout and never touch the filesystem.

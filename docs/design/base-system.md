@@ -73,8 +73,6 @@ Package repositories (deb822 files in `/etc/apt/sources.list.d/`):
 - Stops if the stock file is missing, its suite is not this OS release, its keyring does not exist, or (for the Ceph no-subscription value) its URI is not a Proxmox Ceph enterprise URI.
 - Verifies the files match, then runs `apt-get update`: any `E:`/`Err:` line fails; `W:` lines only warn. After a revert an enterprise repository is enabled again and returns 401 without a subscription key, so errors that mention `enterprise.proxmox.com` only warn, and only while such a repository is enabled. On failure it prints manual undo steps and does not roll back.
 
-Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0008](../decisions/0008-proxmox-node-script-contract.md).
-
 ## Verification
 
 | Check                      | Expected result                                     |
@@ -84,3 +82,11 @@ Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0008](
 | `chronyc tracking`         | `Leap status : Normal`, small offset                |
 | `apt-get update`           | No errors; no enterprise repository contacted       |
 | `base-system.sh --dry-run` | Reports "Nothing to do."                            |
+
+## Decision records
+
+None.
+
+## Planned
+
+None.

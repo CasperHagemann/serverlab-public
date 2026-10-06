@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # check.sh — bring the repo into compliance with .editorconfig and lint
 # shell scripts.

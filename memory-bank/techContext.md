@@ -38,7 +38,7 @@ Install: `sudo pacman -S shfmt shellcheck editorconfig-checker prettier bats git
 `bats` is development-environment only and never installed on Proxmox
 nodes (ADR-0007, `scripts/README.md`). `tests/lib/*.bats` test
 `scripts/lib/*.sh` using stub executables in `tests/fixtures/bin/`
-(`pvesh`, `pvesm`, `sgdisk`). 97 tests. Layout: `tests/README.md`.
+(`pvesh`, `pvesm`, `sgdisk`). Layout: `tests/README.md`.
 
 ## MCP servers
 

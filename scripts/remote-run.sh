@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # remote-run.sh — run one or more scripts/proxmox-node/*.sh stages on a
 # Proxmox node over a single SSH connection, without needing a clone of this

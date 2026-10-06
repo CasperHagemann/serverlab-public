@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # resource-management.sh — gives the Proxmox node's own processes priority
 # over guests for CPU time, disk I/O and memory, per

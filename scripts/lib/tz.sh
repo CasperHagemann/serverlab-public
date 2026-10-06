@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # tz.sh — time zone helpers. Functions only.
 [[ -n "${SERVERLAB_LIB_TZ:-}" ]] && return 0

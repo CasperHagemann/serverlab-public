@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # log.sh — logging helpers. Functions only; sourcing this file has no side
 # effects other than defining functions below.

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # config.sh — per-node config file loading/validation. Functions only.
 [[ -n "${SERVERLAB_LIB_CONFIG:-}" ]] && return 0

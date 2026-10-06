@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # guards.sh — safety-check helpers that abort the script early when a
 # precondition isn't met. Functions only.

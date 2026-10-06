@@ -4,7 +4,7 @@
 
 ```text
 docs/
-  decisions/           ADRs (README.md index, 0001-0005)
+  decisions/           ADRs (README.md index, 0001-0013)
   design/              one doc per design area + README.md
   runbooks/            operational procedures
   control-node.md      contributor setup, MCP notes, VS Code shell fix
@@ -14,8 +14,7 @@ scripts/
   control-node/        tooling that runs on the control node
     check.sh           formatting/lint/test entry point
     install-hooks.sh   one-time per-clone setup (core.hooksPath)
-  lib/                 shared helpers by topic (log, guards, prompt, files,
-                       config, pve, net, disk); loaded via common.sh
+  lib/                 shared helpers by topic; loaded via common.sh
   proxmox-node/        scripts that run on the Proxmox node
                        (base-system.sh, networking.sh, storage.sh, resource-management.sh)
   remote-run.sh        run proxmox-node stages (or all) on the Proxmox node over one SSH connection
@@ -38,19 +37,20 @@ anything not implemented.
 
 ## Key decisions
 
-| Decision                                   | Record                                                                       |
-| ------------------------------------------ | ---------------------------------------------------------------------------- |
-| Bash + Proxmox-native tooling              | [ADR-0004](../docs/decisions/0004-use-bash-and-proxmox-native-tooling.md)    |
-| Repository layout and sources of truth     | [ADR-0003](../docs/decisions/0003-repository-layout-and-sources-of-truth.md) |
-| Shell coding standards (Google guide)      | [ADR-0005](../docs/decisions/0005-shell-coding-standards.md)                 |
-| Shared library design                      | [ADR-0006](../docs/decisions/0006-shared-library-design.md)                  |
-| Testing and quality gates                  | [ADR-0007](../docs/decisions/0007-testing-and-quality-gates.md)              |
-| Proxmox-node script contract               | [ADR-0008](../docs/decisions/0008-proxmox-node-script-contract.md)           |
-| Node configuration                         | [ADR-0009](../docs/decisions/0009-node-configuration.md)                     |
-| Remote execution                           | [ADR-0010](../docs/decisions/0010-remote-execution.md)                       |
-| Documentation structure                    | [ADR-0011](../docs/decisions/0011-documentation-structure.md)                |
-| btrfs `local-data` for local guest storage | [ADR-0012](../docs/decisions/0012-local-guest-storage-btrfs.md)              |
-| Terminology and naming                     | [ADR-0002](../docs/decisions/0002-terminology-and-naming.md)                 |
+| Decision                                   | Record                                                                        |
+| ------------------------------------------ | ----------------------------------------------------------------------------- |
+| Bash + Proxmox-native tooling              | [ADR-0004](../docs/decisions/0004-use-bash-and-proxmox-native-tooling.md)     |
+| Repository layout and sources of truth     | [ADR-0003](../docs/decisions/0003-repository-layout-and-sources-of-truth.md)  |
+| Shell coding standards (Google guide)      | [ADR-0005](../docs/decisions/0005-shell-coding-standards.md)                  |
+| Shared library design                      | [ADR-0006](../docs/decisions/0006-shared-library-design.md)                   |
+| Testing and quality gates                  | [ADR-0007](../docs/decisions/0007-testing-and-quality-gates.md)               |
+| Proxmox-node script contract               | [ADR-0008](../docs/decisions/0008-proxmox-node-script-contract.md)            |
+| Node configuration                         | [ADR-0009](../docs/decisions/0009-node-configuration.md)                      |
+| Remote execution                           | [ADR-0010](../docs/decisions/0010-remote-execution.md)                        |
+| Documentation structure                    | [ADR-0011](../docs/decisions/0011-documentation-structure.md)                 |
+| btrfs `local-data` for local guest storage | [ADR-0012](../docs/decisions/0012-local-guest-storage-btrfs.md)               |
+| Terminology and naming                     | [ADR-0002](../docs/decisions/0002-terminology-and-naming.md)                  |
+| Node resource priority                     | [ADR-0013](../docs/decisions/0013-node-resource-priority-and-fair-sharing.md) |
 
 ## Terminology
 
@@ -72,10 +72,9 @@ Defined in [ADR-0002](../docs/decisions/0002-terminology-and-naming.md): the
 
 ## check.sh
 
-- **Fix mode** (default): whole repo. `shfmt -w` → `prettier --write` →
-  `shellcheck -S warning` → `ec -exclude '<pattern>'` → bats.
-- **Check mode** (`--check`): staged files only, non-mutating. `shfmt -d` →
-  `shellcheck -S warning` → `prettier --check` → `ec`. No bats.
+- **Fix mode** (default): whole repo, formats in place, then runs bats.
+- **Check mode** (`--check`): staged files only, non-mutating, no bats.
+- The tools and their order are listed in the header of `check.sh`.
 - `trap on_failure ERR` (with `set -o errtrace`) prints the failing tool's
   output, then an `[ERROR]` block: how to fix (`./scripts/control-node/check.sh`) and how
   to bypass (`git commit --no-verify`).

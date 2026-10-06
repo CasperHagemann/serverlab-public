@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # install-hooks.sh — one-time setup per clone: point git at the repo's
 # tracked hooks directory (.githooks/) instead of the default, untracked

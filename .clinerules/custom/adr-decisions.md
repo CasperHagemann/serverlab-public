@@ -26,7 +26,7 @@ detailed target state; ADRs hold the decision and its reasoning.
 | `scripts/proxmox-node/`, new area | ADR-0008 |
 | `config/proxmox-nodes/*.env`, keys | ADR-0009 |
 | `scripts/remote-run.sh` | ADR-0010 |
-| Docs, READMEs, memory bank, ADRs | ADR-0011 |
+| Docs, READMEs, ADRs | ADR-0011 |
 | Storage | ADR-0012 |
 | CPU, I/O, memory priority | ADR-0013 |
 
@@ -119,8 +119,21 @@ Cover what is relevant; skip the rest without padding.
 - Use the project terminology: control node, Proxmox node.
 - Keep it short; link to `docs/design/` instead of repeating it.
 
+## Version-specific behaviour
+
+When a change depends on behaviour that differs between versions (`pvesh`,
+`pvesm`, `sgdisk`, `chronyc`, config file formats and paths, cgroup and
+systemd behaviour, defaults and limits), check it. Do not rely on memory.
+The versions in use are in `inventory/hardware.md`. Sources, in order:
+
+1. The Proxmox node: `pveversion`, `man`, `--help`.
+2. Official documentation for the same version, listed in
+   `docs/design/README.md` under Sources.
+3. General web results, only to find an official source.
+
 ## Verify
 
-- Run `./scripts/control-node/check.sh`. It validates file names, titles,
-  status, date, section order, non-empty sections and the index. It does
-  not check content; review it yourself.
+- Run `./scripts/control-node/check.sh` after any change. It validates
+  file names, titles, status, date, section order, non-empty sections and
+  the index, and runs shfmt, shellcheck, editorconfig and the bats tests.
+  It does not check content; review it yourself.

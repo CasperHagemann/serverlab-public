@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # args.sh — command-line helpers. Functions only.
 [[ -n "${SERVERLAB_LIB_ARGS:-}" ]] && return 0

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # disk.sh — disk/partition inspection helpers for storage Proxmox-node scripts.
 # Functions only; these only read state or do pure calculations, never

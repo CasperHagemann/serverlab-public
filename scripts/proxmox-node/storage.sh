@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # storage.sh — Proxmox-node storage configuration, per
 # docs/design/storage.md. Currently: creates a btrfs partition

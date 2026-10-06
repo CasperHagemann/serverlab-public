@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # cgroup.sh — cgroup weight and I/O scheduler helpers. Functions only.
 [[ -n "${SERVERLAB_LIB_CGROUP:-}" ]] && return 0

@@ -10,6 +10,10 @@ None.
 
 ---
 
+## Decision records
+
+None.
+
 ## Planned
 
 > Not implemented.

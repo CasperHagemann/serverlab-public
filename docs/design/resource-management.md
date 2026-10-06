@@ -93,7 +93,6 @@ daemon-reload`, then writes the values to the running slices.
   when `bfq` is the active scheduler; other missing `system.slice` files
   stop the script.
 - Verifies the same values, the unit state and the active scheduler.
-- Idempotent; `--dry-run` and `--yes`; no automatic rollback.
 
 ## Verification
 
@@ -126,7 +125,5 @@ of the removed files are kept.
   node priority by weights, not limits.
 
 ## Planned
-
-> Not implemented.
 
 None.

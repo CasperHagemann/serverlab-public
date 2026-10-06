@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # base-system.sh — Proxmox-node post-install configuration, per
 # docs/design/base-system.md. Currently: time zone, NTP (chrony) and

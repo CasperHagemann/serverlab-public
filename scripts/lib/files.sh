@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # files.sh — file backup/restore/diff helpers. Functions only.
 [[ -n "${SERVERLAB_LIB_FILES:-}" ]] && return 0

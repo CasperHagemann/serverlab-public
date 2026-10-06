@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # net.sh — local network-state inspection helpers, using only tools present
 # on a base Proxmox VE install (/sys/class/net, `ip`, `awk`) — no `jq`.

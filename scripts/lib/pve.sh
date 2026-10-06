@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # pve.sh — pvesh wrappers. Functions only.
 [[ -n "${SERVERLAB_LIB_PVE:-}" ]] && return 0

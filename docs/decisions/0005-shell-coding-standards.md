@@ -26,7 +26,7 @@ Settings the guide leaves to tools:
 
 Project rules on top of the guide:
 
-- `#!/usr/bin/env bash` and `set -euo pipefail` in every executable.
+- `#!/bin/bash` and `set -euo pipefail` in every executable.
 - Every script has a `main` function, called as `main "$@"` on the last
   line, unless it is a trivial one-liner.
 - Every script accepts `-h`/`--help`, which prints the options and the exit

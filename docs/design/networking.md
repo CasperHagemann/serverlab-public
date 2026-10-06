@@ -24,7 +24,6 @@ Two physically separate networks. One NIC per bridge, no bonding. Both networks 
 ## Implementation
 
 - The VM bridge is created by [`scripts/proxmox-node/networking.sh`](../../scripts/proxmox-node/networking.sh). The script expects the management bridge to exist.
-- Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0008](../decisions/0008-proxmox-node-script-contract.md).
 
 ## Verification
 
@@ -32,3 +31,11 @@ Two physically separate networks. One NIC per bridge, no bonding. Both networks 
 | ---------------------------------- | --------------------- |
 | `ip -br link show <NET_VM_BRIDGE>` | The bridge exists     |
 | `networking.sh --dry-run`          | Reports nothing to do |
+
+## Decision records
+
+None.
+
+## Planned
+
+None.

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # networking.sh — Proxmox-node networking configuration, per
 # docs/design/networking.md. Currently: creates the general VM network

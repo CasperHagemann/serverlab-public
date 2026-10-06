@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # prompt.sh — interactive input helpers. Functions only.
 [[ -n "${SERVERLAB_LIB_PROMPT:-}" ]] && return 0

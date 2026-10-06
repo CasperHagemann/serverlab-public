@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # common.sh — loader for serverlab Proxmox-node script shared helpers.
 #
