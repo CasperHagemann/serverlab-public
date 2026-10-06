@@ -18,13 +18,13 @@ setup() {
 	local config_file="${BATS_TEST_TMPDIR}/host.env"
 	cat >"${config_file}" <<-'EOF'
 		# a comment
-		MGMT_BRIDGE="vmbr0"
-		VM_IFACE=nic1
+		NET_MGMT_BRIDGE="vmbr0"
+		NET_VM_IFACE=nic1
 	EOF
 
 	config::load "${config_file}"
-	[ "${MGMT_BRIDGE}" == "vmbr0" ]
-	[ "${VM_IFACE}" == "nic1" ]
+	[ "${NET_MGMT_BRIDGE}" == "vmbr0" ]
+	[ "${NET_VM_IFACE}" == "nic1" ]
 }
 
 @test "config::load refuses a file containing command substitution" {

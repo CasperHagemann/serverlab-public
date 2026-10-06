@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # pvesm — stub for testing scripts/lib/pve.sh's pve::storage_disabled without
 # a real Proxmox host. Only understands `pvesm status --storage <id>`, and

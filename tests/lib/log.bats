@@ -17,8 +17,8 @@ setup() {
 }
 
 @test "log::reboot_required prefixes the stage name when known" {
-	SERVERLAB_STAGE="05-proxmox-install.sh" log::reboot_required "new kernel" 2>/dev/null
-	[ "$(cat "${SERVERLAB_REBOOT_FILE}")" == "05-proxmox-install.sh: new kernel" ]
+	SERVERLAB_STAGE="base-system.sh" log::reboot_required "new kernel" 2>/dev/null
+	[ "$(cat "${SERVERLAB_REBOOT_FILE}")" == "base-system.sh: new kernel" ]
 }
 
 @test "log::reboot_required does not record the same reason twice" {
@@ -38,4 +38,16 @@ setup() {
 	run log::reboot_required "new kernel"
 	[ "$status" -eq 0 ]
 	[[ "$output" == *"Could not record"* ]]
+}
+
+@test "log::die exits 1 by default" {
+	run log::die "boom"
+	[ "$status" -eq 1 ]
+	[[ "$output" == *"[ERROR] boom"* ]]
+}
+
+@test "log::die --code exits with the given status" {
+	run log::die --code 2 "bad usage"
+	[ "$status" -eq 2 ]
+	[[ "$output" == *"[ERROR] bad usage"* ]]
 }

@@ -9,7 +9,7 @@
 # shell out to it. disk::os_disk/sector_size/alignment_offset/
 # optimal_io_size read real host paths (/proc, /sys) and aren't covered
 # here — they're thin single-command wrappers, exercised manually against
-# the real host instead (see docs/decisions/0003).
+# the real host instead (see ADR-0007).
 
 setup() {
 	LIB_DIR="${BATS_TEST_DIRNAME}/../../scripts/lib"

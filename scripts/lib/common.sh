@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # common.sh — loader for serverlab Proxmox-node script shared helpers.
 #
@@ -17,6 +17,8 @@ _serverlab_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_serverlab_lib_dir}/log.sh"
 # shellcheck source=scripts/lib/guards.sh
 source "${_serverlab_lib_dir}/guards.sh"
+# shellcheck source=scripts/lib/args.sh
+source "${_serverlab_lib_dir}/args.sh"
 # shellcheck source=scripts/lib/prompt.sh
 source "${_serverlab_lib_dir}/prompt.sh"
 # shellcheck source=scripts/lib/files.sh

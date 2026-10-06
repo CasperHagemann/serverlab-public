@@ -1,8 +1,9 @@
 # Config
 
-Per-node configuration files read by `scripts/proxmox-node/*.sh`, so the same
-script works unchanged across nodes — see
-[`../scripts/README.md`](../scripts/README.md).
+Per-node configuration files read by the scripts in
+[`scripts/proxmox-node/`](../scripts/proxmox-node/), so the same script works
+unchanged on every Proxmox node. How scripts use them:
+[`scripts/README.md`](../scripts/README.md#configuration-pattern).
 
 ## Layout
 
@@ -15,49 +16,21 @@ config/
 Scripts default to `config/proxmox-nodes/$(hostname -f).env` and accept
 `--config <file>` to override.
 
-## Format
+## Format and keys
 
-Plain `KEY=value` lines, single-line arrays of quoted plain words
-(`KEY=("a.example" "b.example")`, `KEY=()` for empty), and `#` comments only —
-no command substitution, variable expansion, or control flow. `config::load` (in
-[`../scripts/lib/config.sh`](../scripts/lib/config.sh)) rejects anything
-else before sourcing the file.
+The format, the rules for keys and secrets are in
+[ADR-0009](../docs/decisions/0009-node-configuration.md). Each key is
+described in the design doc of its area:
 
-## Post-install settings
-
-Read by `scripts/proxmox-node/05-proxmox-install.sh`; all must be set (an
-empty value has a defined meaning, a missing line stops the script). Values and
-meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-install.md).
-
-| Key               | Type   | Example               |
-| ----------------- | ------ | --------------------- |
-| `TIMEZONE`        | string | `"Europe/Copenhagen"` |
-| `NTP_SERVERS`     | array  | `("0.pool.ntp.org")`  |
-| `PVE_REPOSITORY`  | string | `"no-subscription"`   |
-| `CEPH_REPOSITORY` | string | `"disabled"`          |
-
-## Resource priority settings
-
-Read by `scripts/proxmox-node/25-resource-priority.sh`; all must be set (an
-empty value reverts that setting). Values and meanings:
-[`../docs/design/09-resource-management.md`](../docs/design/09-resource-management.md).
-
-| Key               | Type   | Example   |
-| ----------------- | ------ | --------- |
-| `HOST_CPU_WEIGHT` | string | `"1000"`  |
-| `HOST_IO_WEIGHT`  | string | `"10000"` |
-| `HOST_MEMORY_LOW` | string | `"4G"`    |
-| `IO_SCHEDULER`    | string | `"bfq"`   |
-
-## Secrets
-
-Never put passwords, API tokens, or certificates in these files. This
-directory is always committed — everything here is treated as ordinary,
-non-sensitive infrastructure data (see root `.gitignore` for the few things
-that are excluded, e.g. `*.secret`).
+| Area                | Design doc                                                        |
+| ------------------- | ----------------------------------------------------------------- |
+| Base system         | [`base-system.md`](../docs/design/base-system.md)                 |
+| Networking          | [`networking.md`](../docs/design/networking.md)                   |
+| Storage             | [`storage.md`](../docs/design/storage.md)                         |
+| Resource management | [`resource-management.md`](../docs/design/resource-management.md) |
 
 ## Relationship to `inventory/`
 
-`inventory/` is the human-readable source of truth; these files are what
-scripts actually read. The values must match — update both together when
-something changes.
+`config/` holds the values a script applies. [`inventory/`](../inventory/)
+holds the facts no script sets: the hardware and the site network plan. A value
+lives in one of them, not both.

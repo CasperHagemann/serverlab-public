@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # sgdisk — stub for testing scripts/lib/disk.sh without real disk hardware.
 # Only understands the subset of `sgdisk` this project's lib/disk.sh

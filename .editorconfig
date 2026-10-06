@@ -7,8 +7,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.sh]
-indent_style = tab
-indent_size = 4
+indent_style = space
+indent_size = 2
+switch_case_indent = true
 
 [*.md]
 

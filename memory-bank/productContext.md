@@ -5,7 +5,7 @@
 A personal homelab Proxmox node needs a documented, repeatable, and
 reviewable way to go from bare metal to a running hypervisor platform,
 without infrastructure-as-code tooling that is oversized for a single node
-and a single administrator (see ADR-0002).
+and a single administrator (see ADR-0004).
 
 ## Problems it solves
 

@@ -12,11 +12,11 @@ Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 Proxmox VE 9.2 (Debian 13 trixie).
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
-- `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/10-network.sh`.
+- `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/networking.sh`.
 - `local-data` (`nvme0n1p4`, btrfs, ~853 GiB) created by
-  `scripts/proxmox-node/20-storage.sh`; `local` and `local-btrfs` disabled.
+  `scripts/proxmox-node/storage.sh`; `local` and `local-btrfs` disabled.
 - Time zone, NTP (chrony) and APT repositories configured by
-  `scripts/proxmox-node/05-proxmox-install.sh`: PVE no-subscription
+  `scripts/proxmox-node/base-system.sh`: PVE no-subscription
   repository in use, PVE and Ceph enterprise repositories disabled (stock
   files in `/etc/apt/sources.list.orig/`).
 - Values: `inventory/`, `config/proxmox-nodes/pve.kiwik.org.env`.
@@ -44,7 +44,7 @@ Proxmox VE 9.2 (Debian 13 trixie).
 - Inventory files hold concrete values only.
 - Use "control node" (where development happens) and
   "Proxmox node". Never "workstation".
-- Hidden folders (`.agents/`, `.cline/`, and `.clinerules/` except
+- Hidden folders (`.cline/`, and `.clinerules/` except
   `.clinerules/custom/`) are kept as they are. `.clinerules/custom/` holds
   project rules written by hand, always active (no frontmatter).
 

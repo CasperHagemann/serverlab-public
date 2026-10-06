@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # install-hooks.sh — one-time setup per clone: point git at the repo's
 # tracked hooks directory (.githooks/) instead of the default, untracked
@@ -17,4 +17,4 @@ git config core.hooksPath .githooks
 
 log::info "Git hooks installed (core.hooksPath = .githooks)."
 log::info "pre-commit now runs" \
-	"'./scripts/control-node/check.sh --check' on staged files."
+  "'./scripts/control-node/check.sh --check' on staged files."

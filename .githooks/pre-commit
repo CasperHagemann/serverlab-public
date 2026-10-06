@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # .githooks/pre-commit — runs before every commit, staged files only.
 #

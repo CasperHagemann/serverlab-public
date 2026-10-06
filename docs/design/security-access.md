@@ -1,7 +1,5 @@
 # Design: Security & Access
 
-> Reference: [`docs/inspiration/proxmox-guide.md`](../inspiration/proxmox-guide.md#5-security-baseline) (unvetted).
-
 ## Scope
 
 SSH/access control, node firewall, MFA for administrators, API token scoping for scripts.
@@ -11,6 +9,10 @@ SSH/access control, node firewall, MFA for administrators, API token scoping for
 None.
 
 ---
+
+## Decision records
+
+None.
 
 ## Planned
 

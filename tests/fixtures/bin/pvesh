@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # pvesh — stub for testing scripts/lib/pve.sh without a real Proxmox host.
 # Only understands the subset of `pvesh` this project's lib/pve.sh actually

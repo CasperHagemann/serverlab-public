@@ -17,7 +17,7 @@ or workloads. That will be a separate project.
 
 Bash scripting against the Proxmox CLI (`pvesh`, `qm`, `pct`, `pvesm`)
 and/or the REST API. Rationale:
-[ADR-0002](../docs/decisions/0002-use-bash-and-proxmox-native-tooling.md).
+[ADR-0004](../docs/decisions/0004-use-bash-and-proxmox-native-tooling.md).
 
 ## Roadmap
 
