@@ -21,12 +21,12 @@
 # Usage:
 #   scripts/remote-run.sh <user@host> <stage>... | all [-- <stage-args>...]
 #
-#   <stage>        File name in scripts/proxmox-node/, e.g. 10-network.sh
-#   all            Every numbered stage ([0-9][0-9]-*.sh), in name order
+#   <stage>        File name in scripts/proxmox-node/, e.g. networking.sh
+#   all            Every stage (*.sh), in name order
 #   <stage-args>   Passed to every stage (--config, --dry-run, --yes)
 #
 # Examples:
-#   scripts/remote-run.sh root@192.168.88.101 10-network.sh -- --dry-run
+#   scripts/remote-run.sh root@192.168.88.101 networking.sh -- --dry-run
 #   scripts/remote-run.sh root@192.168.88.101 all -- --yes
 #
 # See scripts/README.md for background and the fallback (copy-then-run)
@@ -51,7 +51,7 @@ resolve_stages() {
 	local name path
 	for name in "$@"; do
 		if [[ "${name}" == "all" ]]; then
-			for path in "${_script_dir}"/proxmox-node/[0-9][0-9]-*.sh; do
+			for path in "${_script_dir}"/proxmox-node/*.sh; do
 				basename "${path}"
 			done
 			continue

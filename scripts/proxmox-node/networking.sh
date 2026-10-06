@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# 10-network.sh — Proxmox-node networking configuration, per
-# docs/design/03-networking.md. Currently: creates the general VM network
+# networking.sh — Proxmox-node networking configuration, per
+# docs/design/networking.md. Currently: creates the general VM network
 # bridge (vmbr1) on top of its physical NIC.
 #
 # The management bridge (vmbr0) is expected to already exist from the
 # Proxmox installer — this script only touches the general VM network.
 #
 # Usage:
-#   10-network.sh [--config <file>] [--dry-run] [--yes]
+#   networking.sh [--config <file>] [--dry-run] [--yes]
 #
 #   --config <file>  Path to a Proxmox-node config file (default:
 #                     config/proxmox-nodes/$(hostname -f).env;
@@ -30,7 +30,7 @@ if [[ -z "${SERVERLAB_BUNDLED:-}" ]]; then
 fi
 
 readonly INTERFACES_FILE="/etc/network/interfaces"
-readonly LOCK_FILE="/run/serverlab/10-network.lock"
+readonly LOCK_FILE="/run/serverlab/networking.lock"
 
 dry_run=false
 auto_yes=""

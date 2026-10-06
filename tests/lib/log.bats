@@ -17,8 +17,8 @@ setup() {
 }
 
 @test "log::reboot_required prefixes the stage name when known" {
-	SERVERLAB_STAGE="05-proxmox-install.sh" log::reboot_required "new kernel" 2>/dev/null
-	[ "$(cat "${SERVERLAB_REBOOT_FILE}")" == "05-proxmox-install.sh: new kernel" ]
+	SERVERLAB_STAGE="base-system.sh" log::reboot_required "new kernel" 2>/dev/null
+	[ "$(cat "${SERVERLAB_REBOOT_FILE}")" == "base-system.sh: new kernel" ]
 }
 
 @test "log::reboot_required does not record the same reason twice" {

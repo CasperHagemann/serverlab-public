@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# 20-storage.sh — Proxmox-node storage configuration, per
-# docs/design/04-storage.md. Currently: creates a btrfs partition
+# storage.sh — Proxmox-node storage configuration, per
+# docs/design/storage.md. Currently: creates a btrfs partition
 # ("local-data") in whatever free space remains on the OS NVMe, registers
 # it as a Proxmox storage holding all content types, and disables the
 # OS-disk storages (local, local-btrfs) so guest content only lands on
@@ -11,7 +11,7 @@
 # touches existing partitions or their data.
 #
 # Usage:
-#   20-storage.sh [--config <file>] [--dry-run] [--yes]
+#   storage.sh [--config <file>] [--dry-run] [--yes]
 #
 #   --config <file>  Path to a Proxmox-node config file (default:
 #                     config/proxmox-nodes/$(hostname -f).env;
@@ -35,7 +35,7 @@ if [[ -z "${SERVERLAB_BUNDLED:-}" ]]; then
 fi
 
 readonly FSTAB_FILE="/etc/fstab"
-readonly LOCK_FILE="/run/serverlab/20-storage.lock"
+readonly LOCK_FILE="/run/serverlab/storage.lock"
 
 dry_run=false
 auto_yes=""

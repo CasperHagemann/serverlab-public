@@ -15,7 +15,7 @@ Proxmox node is a single node with limited RAM.
 
 Create one btrfs partition in the free space and register it as the Proxmox
 storage `local-data` for all content types. Disable the OS storages `local`
-and `local-btrfs`. Details: [`docs/design/04-storage.md`](../design/04-storage.md).
+and `local-btrfs`. Details: [`docs/design/storage.md`](../design/storage.md).
 
 Alternatives considered and rejected:
 

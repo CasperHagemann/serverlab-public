@@ -25,9 +25,9 @@ else before sourcing the file.
 
 ## Post-install settings
 
-Read by `scripts/proxmox-node/05-proxmox-install.sh`; all must be set (an
+Read by `scripts/proxmox-node/base-system.sh`; all must be set (an
 empty value has a defined meaning, a missing line stops the script). Values and
-meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-install.md).
+meanings: [`../docs/design/base-system.md`](../docs/design/base-system.md).
 
 | Key               | Type   | Example               |
 | ----------------- | ------ | --------------------- |
@@ -38,9 +38,9 @@ meanings: [`../docs/design/02-proxmox-install.md`](../docs/design/02-proxmox-ins
 
 ## Resource priority settings
 
-Read by `scripts/proxmox-node/25-resource-priority.sh`; all must be set (an
+Read by `scripts/proxmox-node/resource-management.sh`; all must be set (an
 empty value reverts that setting). Values and meanings:
-[`../docs/design/09-resource-management.md`](../docs/design/09-resource-management.md).
+[`../docs/design/resource-management.md`](../docs/design/resource-management.md).
 
 | Key               | Type   | Example   |
 | ----------------- | ------ | --------- |

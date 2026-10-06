@@ -2,7 +2,7 @@
 
 Status: Accepted
 
-Date: 2026-09-27
+Date: 2026-10-06
 
 ## Context
 
@@ -51,20 +51,20 @@ _Proxmox node_ are defined in the root `README.md`. (Earlier revisions of
 this ADR called the Proxmox-node scripts "host scripts" and kept them in
 `scripts/host/`.)
 
-**Shell script naming (`scripts/proxmox-node/NN-<area>.sh`)**: one script per
-configuration area (e.g. `10-network.sh`, `20-storage.sh`), named after
+**Shell script naming (`scripts/proxmox-node/<area>.sh`)**: one script per
+configuration area (e.g. `networking.sh`, `storage.sh`), named after
 what it configures rather than its current feature, so adding more to an
 area (a second bridge, VLAN tagging, more storage entries) means adding
 list-style config entries and a loop in the existing script/library, not a
-new script. The `NN-` prefix fixes run order and leaves gaps for new
-areas; split an area into `NNa-<area>-<detail>.sh` files only if it grows
-too large for one script.
+new script. Scripts are independent of each other and have no run order.
+Split an area into `<area>-<detail>.sh` files only if it grows too large for
+one script.
 
 **Rollback**: on apply/verify failure, a script stops and prints the
 exact manual undo command(s) (the backup path already made in phase 4)
 rather than reverting automatically — this keeps scripts simple as more
 areas/features are added, at the cost of requiring a human to run the
-undo step. This applies to every script, including `10-network.sh`.
+undo step. This applies to every script, including `networking.sh`.
 
 **Script phases**: beyond a trivial one-liner, a script has a `main`
 function, called as `main "$@"` on its last line, that runs these phases in
@@ -124,8 +124,8 @@ later if assertions become repetitive.
   following the same seven phases, rather than inventing structure each
   time — consistency across scripts, at the cost of some upfront
   boilerplate per script.
-- Naming scripts after the area they configure (`10-network.sh`,
-  `20-storage.sh`) rather than their current feature means most future
+- Naming scripts after the area they configure (`networking.sh`,
+  `storage.sh`) rather than their current feature means most future
   additions extend an existing script/library instead of adding a new
   file — but it also means a script's own header comment and config keys
   need to stay a step ahead of "what it does today," describing the area

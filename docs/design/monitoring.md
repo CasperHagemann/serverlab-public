@@ -1,7 +1,5 @@
 # Design: Monitoring
 
-> Reference: [`docs/inspiration/proxmox-guide.md`](../inspiration/proxmox-guide.md#6-monitoring) (unvetted).
-
 ## Scope
 
 Hardware monitoring (temperatures, fans, disk health), node monitoring (CPU, RAM, storage, network), and monitoring platform.

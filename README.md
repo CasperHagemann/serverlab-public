@@ -54,9 +54,8 @@ used in the Proxmox API/cluster sense (`/nodes/<node>`, `pve::node`).
 | `docs/design/`         | Design docs for each Proxmox-node design area (storage, networking, etc.) |
 | `docs/decisions/`      | Architecture Decision Records — current decisions and their reasoning     |
 | `docs/runbooks/`       | Operational procedures                                                    |
-| `docs/inspiration/`    | Original unvetted reference material — not authoritative                  |
 | `docs/control-node.md` | Control node setup and MCP server notes for contributors                  |
-| `inventory/`           | Source of truth for hardware, networks, and IP allocations                |
+| `inventory/`           | Hardware facts and the site network plan                                  |
 | `scripts/`             | Configuration scripts (bash) and shared helpers                           |
 | `.cline/mcp.json`      | MCP server config reference (manual copy-in, not auto-loaded)             |
 

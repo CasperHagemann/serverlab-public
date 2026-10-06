@@ -46,8 +46,8 @@ We give the node priority with weights, not limits:
   100). `system.slice` gets `MemoryLow=4G`.
 - The OS disk uses the BFQ scheduler, persisted by a udev rule.
 - The values are set in the node config and applied by
-  `scripts/proxmox-node/25-resource-priority.sh`. Details:
-  [`docs/design/09-resource-management.md`](../design/09-resource-management.md).
+  `scripts/proxmox-node/resource-management.sh`. Details:
+  [`docs/design/resource-management.md`](../design/resource-management.md).
 
 Rejected:
 

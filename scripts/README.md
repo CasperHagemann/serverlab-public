@@ -129,8 +129,8 @@ phases, in order:
 7. **Summary.** Report what changed, where any backup lives, and whether a
    reboot is required.
 
-See [`proxmox-node/10-network.sh`](proxmox-node/10-network.sh) and
-[`proxmox-node/20-storage.sh`](proxmox-node/20-storage.sh) for concrete examples, and
+See [`proxmox-node/networking.sh`](proxmox-node/networking.sh) and
+[`proxmox-node/storage.sh`](proxmox-node/storage.sh) for concrete examples, and
 [`docs/decisions/0003-proxmox-node-script-structure-and-conventions.md`](../docs/decisions/0003-proxmox-node-script-structure-and-conventions.md)
 for the reasoning behind this structure.
 
@@ -155,9 +155,9 @@ for usage and caveats.
 
 ## Layout
 
-| Path            | Purpose                                                                                   |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers        |
-| `proxmox-node/` | Post-install Proxmox-node configuration scripts, numbered for run order (`10-`, `20-`, …) |
-| `control-node/` | Control-node tooling: `check.sh` (format/lint/test), `install-hooks.sh` (git hooks setup) |
-| `remote-run.sh` | Runs on the control node; bundles and runs `proxmox-node/` stages on a Proxmox node       |
+| Path            | Purpose                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `lib/`          | Shared function libraries: logging, guards, prompts, file/config/pvesh/net helpers              |
+| `proxmox-node/` | Post-install Proxmox-node configuration scripts, one per design area, independent of each other |
+| `control-node/` | Control-node tooling: `check.sh` (format/lint/test), `install-hooks.sh` (git hooks setup)       |
+| `remote-run.sh` | Runs on the control node; bundles and runs `proxmox-node/` stages on a Proxmox node             |

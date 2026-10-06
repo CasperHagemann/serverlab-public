@@ -4,12 +4,11 @@
 
 ```text
 docs/
-  decisions/           ADRs (README.md index, 0001-0004)
-  design/              00-overview.md .. 08-high-availability.md + README.md
+  decisions/           ADRs (README.md index, 0001-0005)
+  design/              one doc per design area + README.md
   runbooks/            operational procedures
-  inspiration/         unvetted reference material
   control-node.md      contributor setup, MCP notes, VS Code shell fix
-inventory/             hardware.md, networks.md, ip-plan.md
+inventory/             hardware.md, ip-plan.md
 config/                per-node config (config/proxmox-nodes/<hostname>.env)
 scripts/
   control-node/        tooling that runs on the control node
@@ -18,7 +17,7 @@ scripts/
   lib/                 shared helpers by topic (log, guards, prompt, files,
                        config, pve, net, disk); loaded via common.sh
   proxmox-node/        scripts that run on the Proxmox node
-                       (05-proxmox-install.sh, 10-network.sh, 20-storage.sh)
+                       (base-system.sh, networking.sh, storage.sh, resource-management.sh)
   remote-run.sh        run proxmox-node stages (or all) on the Proxmox node over one SSH connection
 tests/                 bats-core suite for scripts/lib/*.sh
 .githooks/pre-commit   calls check.sh --check

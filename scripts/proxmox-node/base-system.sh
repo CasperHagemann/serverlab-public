@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# 05-proxmox-install.sh — Proxmox-node post-install configuration, per
-# docs/design/02-proxmox-install.md. Currently: time zone, NTP (chrony) and
+# base-system.sh — Proxmox-node post-install configuration, per
+# docs/design/base-system.md. Currently: time zone, NTP (chrony) and
 # package repositories.
 #
 # TIMEZONE (node config) is the IANA zone name to set. An empty value reverts
@@ -22,7 +22,7 @@
 # Each step shows its plan; one confirmation covers all steps with changes.
 #
 # Usage:
-#   05-proxmox-install.sh [--config <file>] [--dry-run] [--yes]
+#   base-system.sh [--config <file>] [--dry-run] [--yes]
 #
 #   --config <file>  Path to a Proxmox-node config file (default:
 #                     config/proxmox-nodes/$(hostname -f).env;
@@ -57,7 +57,7 @@ readonly PVE_NOSUB="${APT_SOURCES_DIR}/proxmox.sources"
 readonly PVE_NOSUB_URI="http://download.proxmox.com/debian/pve"
 readonly CEPH_ENTERPRISE="${APT_SOURCES_DIR}/ceph.sources"
 readonly CEPH_NOSUB="${APT_SOURCES_DIR}/ceph-no-subscription.sources"
-readonly LOCK_FILE="/run/serverlab/05-proxmox-install.lock"
+readonly LOCK_FILE="/run/serverlab/base-system.lock"
 
 dry_run=false
 auto_yes=""

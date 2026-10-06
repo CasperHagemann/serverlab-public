@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# 25-resource-priority.sh — gives the Proxmox node's own processes priority
+# resource-management.sh — gives the Proxmox node's own processes priority
 # over guests for CPU time, disk I/O and memory, per
-# docs/design/09-resource-management.md and ADR-0005. Weights only, no
+# docs/design/resource-management.md and ADR-0005. Weights only, no
 # limits: capacity that is idle stays available to guests.
 #
 # Node config settings (an empty value reverts that setting):
@@ -26,7 +26,7 @@
 # Each step shows its plan; one confirmation covers all changes.
 #
 # Usage:
-#   25-resource-priority.sh [--config <file>] [--dry-run] [--yes]
+#   resource-management.sh [--config <file>] [--dry-run] [--yes]
 #
 #   --config <file>  Path to a Proxmox-node config file (default:
 #                     config/proxmox-nodes/$(hostname -f).env;
@@ -56,7 +56,7 @@ readonly UNIT_FILE="${SYSTEMD_DIR}/${UNIT_NAME}"
 readonly UDEV_RULE="/etc/udev/rules.d/60-io-scheduler.rules"
 readonly SCHED_ORIG="/etc/io-scheduler.orig"
 readonly CGROUP_ROOT="/sys/fs/cgroup"
-readonly LOCK_FILE="/run/serverlab/25-resource-priority.lock"
+readonly LOCK_FILE="/run/serverlab/resource-management.lock"
 
 dry_run=false
 auto_yes=""

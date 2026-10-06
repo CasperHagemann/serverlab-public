@@ -149,7 +149,7 @@ this repo on the Proxmox node but can reach it over SSH, use
 files over manually:
 
 ```bash
-scripts/remote-run.sh root@192.168.88.101 10-network.sh -- --dry-run
+scripts/remote-run.sh root@192.168.88.101 networking.sh -- --dry-run
 ```
 
 This bundles `scripts/lib/*.sh`, the target script, and (if present) the
@@ -172,12 +172,12 @@ cleanly if it didn't.
 
 A full setup (all stages, or a chosen list) needs one login and one input
 from the administrator per run, whichever login method is used (see
-[SSH login options](design/05-security-access.md#ssh-login-options)).
+[SSH login options](design/security-access.md#ssh-login-options)).
 
 ```bash
 scripts/remote-run.sh root@192.168.88.101 all -- --dry-run
 scripts/remote-run.sh root@192.168.88.101 all -- --yes
-scripts/remote-run.sh root@192.168.88.101 10-network.sh 20-storage.sh
+scripts/remote-run.sh root@192.168.88.101 networking.sh storage.sh
 ```
 
 How it works: all stages go into one bundle, sent compressed with one
@@ -209,7 +209,7 @@ dropped.
 
 Constraints:
 
-- A stage that changes the network (`10-network.sh`, `ifreload -a`) can drop
+- A stage that changes the network (`networking.sh`, `ifreload -a`) can drop
   the session, so the stages after it do not run. Reconnect and re-run; the
   finished stages report "Nothing to do".
 - A dry run of several stages shows what each stage would do on its own,
@@ -234,7 +234,7 @@ them there directly:
 
 ```bash
 tar -czf - scripts config | ssh root@192.168.88.101 'mkdir -p /root/serverlab && tar -xzf - -C /root/serverlab'
-ssh -t root@192.168.88.101 '/root/serverlab/scripts/proxmox-node/10-network.sh --dry-run'
+ssh -t root@192.168.88.101 '/root/serverlab/scripts/proxmox-node/networking.sh --dry-run'
 ```
 
 Treat this copy as a throwaway snapshot — re-run the `tar` step after any

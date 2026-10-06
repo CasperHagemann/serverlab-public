@@ -1,60 +1,52 @@
-# Design: Proxmox Install
-
-> Reference: [`docs/inspiration/proxmox-guide.md`](../inspiration/proxmox-guide.md#2-install-proxmox-ve) (unvetted).
+# Design: Base System
 
 ## Scope
 
-Install configuration (hostname, management IP, gateway, DNS, timezone) and post-install tasks (NTP, package repositories).
+Time zone, NTP and package repositories of a freshly installed Proxmox node. Node values are in `config/proxmox-nodes/<hostname>.env`.
 
 ## Configuration
 
-| Setting       | Value                               |
-| ------------- | ----------------------------------- |
-| Node          | `pve.kiwik.org` (Minisforum MS-A2)  |
-| Hostname      | `pve.kiwik.org`                     |
-| Management IP | 192.168.88.101/24 on `nic0`/`vmbr0` |
-| Gateway / DNS | 192.168.88.1                        |
-
-See [`inventory/ip-plan.md`](../../inventory/ip-plan.md) and [`03-networking.md`](03-networking.md).
-
 ### Time zone
 
-`TIMEZONE` (node config, `config/proxmox-nodes/<hostname>.env`) is an IANA zone name. The zone follows daylight saving time automatically.
+`TIMEZONE` is an IANA zone name, for example `Europe/Copenhagen`. The zone
+follows daylight saving time automatically.
 
-| Setting    | Value                                                                     |
-| ---------- | ------------------------------------------------------------------------- |
-| `TIMEZONE` | `Europe/Copenhagen`                                                       |
-| Empty `""` | Reverts to the zone saved in `/etc/timezone.orig` before the first change |
-| Unset      | The script stops with an error (a typo cannot silently change the node)   |
+| Value of `TIMEZONE` | Effect                                                                         |
+| ------------------- | ------------------------------------------------------------------------------ |
+| A zone name         | Sets that zone; the script stops if it does not exist in `/usr/share/zoneinfo` |
+| Empty `""`          | Reverts to the zone saved in `/etc/timezone.orig` before the first change      |
+| Unset               | The script stops with an error (a typo cannot silently change the node)        |
 
 ### NTP
 
-The node uses exactly the servers listed in `NTP_SERVERS` (an array in the node config, `config/proxmox-nodes/<hostname>.env`):
+`NTP_SERVERS` is an array of NTP server names, for example
+`("0.pool.ntp.org" "1.pool.ntp.org")`. The node uses exactly these servers and
+nothing else.
 
-| Setting       | Value                                                                  |
-| ------------- | ---------------------------------------------------------------------- |
-| `NTP_SERVERS` | `0.pool.ntp.org`, `1.pool.ntp.org`, `2.pool.ntp.org`, `3.pool.ntp.org` |
-| Empty `()`    | Reverts the node to the OS default chrony configuration                |
-| Unset         | The script stops with an error (a typo cannot silently reset the node) |
+| Value of `NTP_SERVERS` | Effect                                                                 |
+| ---------------------- | ---------------------------------------------------------------------- |
+| One or more names      | Only those servers are used                                            |
+| Empty `()`             | Reverts the node to the OS default chrony configuration                |
+| Unset                  | The script stops with an error (a typo cannot silently reset the node) |
 
 ### Package repositories
 
-No Proxmox subscription is used, so both enterprise repositories are always disabled (never deleted). Two settings in the node config choose what replaces them:
+No Proxmox subscription is used, so both enterprise repositories are always
+disabled (never deleted). `PVE_REPOSITORY` and `CEPH_REPOSITORY` choose what
+replaces them. `debian.sources` is not touched.
 
-| Setting           | Value               | Effect                                                                                      |
+| Key               | Value               | Effect                                                                                      |
 | ----------------- | ------------------- | ------------------------------------------------------------------------------------------- |
 | `PVE_REPOSITORY`  | `"no-subscription"` | `pve-enterprise.sources` disabled; `proxmox.sources` (pve-no-subscription) written          |
 | `PVE_REPOSITORY`  | `""`                | Restores the stock `pve-enterprise.sources`; removes `proxmox.sources`                      |
-| `CEPH_REPOSITORY` | `"disabled"`        | `ceph.sources` disabled; no Ceph repository added (no Ceph on this node)                    |
+| `CEPH_REPOSITORY` | `"disabled"`        | `ceph.sources` disabled; no Ceph repository added                                           |
 | `CEPH_REPOSITORY` | `"no-subscription"` | `ceph.sources` disabled; `ceph-no-subscription.sources` written (for a future Ceph cluster) |
 | `CEPH_REPOSITORY` | `""`                | Restores the stock `ceph.sources`; removes `ceph-no-subscription.sources`                   |
 | Either unset      |                     | The script stops with an error (a typo cannot silently change the node)                     |
 
-`pve.kiwik.org`: `PVE_REPOSITORY="no-subscription"`, `CEPH_REPOSITORY="disabled"`. `debian.sources` is not touched.
-
 ## Implementation
 
-[`scripts/proxmox-node/05-proxmox-install.sh`](../../scripts/proxmox-node/05-proxmox-install.sh) runs a time zone step, an NTP step and a package repositories step. Each step shows its plan; one confirmation covers all steps with changes, and only steps with changes are applied.
+[`scripts/proxmox-node/base-system.sh`](../../scripts/proxmox-node/base-system.sh) runs a time zone step, an NTP step and a package repositories step. Each step shows its plan; one confirmation covers all steps with changes, and only steps with changes are applied.
 
 Time zone:
 
@@ -85,10 +77,10 @@ Script structure: [`scripts/README.md`](../../scripts/README.md) and [ADR-0003](
 
 ## Verification
 
-| Check                             | Expected result                                       |
-| --------------------------------- | ----------------------------------------------------- |
-| `timedatectl`                     | `Time zone: Europe/Copenhagen`, `RTC in local TZ: no` |
-| `chronyc sources`                 | Lists only the servers in `NTP_SERVERS`               |
-| `chronyc tracking`                | `Leap status : Normal`, small offset                  |
-| `apt-get update`                  | No errors; no enterprise repository contacted         |
-| `05-proxmox-install.sh --dry-run` | Reports "Nothing to do."                              |
+| Check                      | Expected result                                |
+| -------------------------- | ---------------------------------------------- |
+| `timedatectl`              | `Time zone: <TIMEZONE>`, `RTC in local TZ: no` |
+| `chronyc sources`          | Lists only the servers in `NTP_SERVERS`        |
+| `chronyc tracking`         | `Leap status : Normal`, small offset           |
+| `apt-get update`           | No errors; no enterprise repository contacted  |
+| `base-system.sh --dry-run` | Reports "Nothing to do."                       |
