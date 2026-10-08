@@ -10,7 +10,7 @@ node. The conventions they follow are in [`../README.md`](../README.md).
 | Script                   | Purpose                                                   |
 | ------------------------ | --------------------------------------------------------- |
 | `base-system.sh`         | Time zone, NTP (chrony) servers, APT repositories         |
-| `networking.sh`          | The general VM network bridge                             |
+| `networking.sh`          | The VLAN-aware VM trunk bridge                            |
 | `storage.sh`             | The btrfs guest storage                                   |
 | `resource-management.sh` | CPU, disk I/O and memory weights that prioritise the node |
 
