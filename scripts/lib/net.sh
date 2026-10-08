@@ -24,6 +24,56 @@ net::iface_master() {
   fi
 }
 
+# net::bridge_vlan_aware <bridge>
+# True if the bridge currently has VLAN awareness (vlan_filtering) enabled.
+net::bridge_vlan_aware() {
+  local bridge="$1"
+  local base="${SERVERLAB_SYS_NET:-/sys/class/net}"
+  local path="${base}/${bridge}/bridge/vlan_filtering"
+  [[ -r "${path}" ]] && [[ "$(<"${path}")" == "1" ]]
+}
+
+# net::ifupdown_option <interfaces-file> <iface> <option>
+# Prints the value of an option (e.g. bridge-vids) in the "iface <iface>"
+# stanza of an ifupdown file, or nothing if the stanza or option is absent.
+net::ifupdown_option() {
+  local file="$1" iface="$2" option="$3"
+  [[ -r "${file}" ]] || return 0
+  awk -v iface="${iface}" -v opt="${option}" '
+    $1 ~ /^(iface|auto|allow-[a-z]+|source|source-directory|mapping)$/ {
+      in_stanza = ($1 == "iface" && $2 == iface)
+      next
+    }
+    in_stanza && $1 == opt {
+      sub(/^[[:space:]]*[^[:space:]]+[[:space:]]+/, "")
+      print
+      exit
+    }
+  ' "${file}"
+}
+
+# net::vlan_leftovers <bridge> <nic> <interfaces-file>
+# Prints the per-VLAN interfaces Proxmox creates for tagged guests on a
+# bridge that is not VLAN aware: <bridge>v<N> (bridge) and <nic>.<N>
+# (VLAN sub-interface), one per line, bridges first. Interfaces defined in
+# the interfaces file are not leftovers and are skipped.
+net::vlan_leftovers() {
+  local bridge="$1" nic="$2" file="$3"
+  local base="${SERVERLAB_SYS_NET:-/sys/class/net}" path name
+  for path in "${base}/${bridge}"v[0-9]* "${base}/${nic}".[0-9]*; do
+    [[ -e "${path}" ]] || continue
+    name="$(basename "${path}")"
+    [[ "${name}" =~ ^${bridge}v[0-9]+$ ||
+      "${name}" =~ ^${nic}\.[0-9]+$ ]] || continue
+    if [[ -r "${file}" ]] &&
+      grep -qE "^[[:space:]]*iface[[:space:]]+${name}[[:space:]]" \
+        "${file}"; then
+      continue
+    fi
+    printf '%s\n' "${name}"
+  done
+}
+
 # net::iface_addrs [--global] <iface>
 # Prints the interface's IPv4/IPv6 addresses in CIDR form, one per line
 # (empty output if the interface has none, e.g. an unaddressed bridge, or

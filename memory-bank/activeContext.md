@@ -12,7 +12,8 @@ Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 Proxmox VE 9.2 (Debian 13 trixie).
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
-- `vmbr1` on `nic1` (general VM) created by `scripts/proxmox-node/networking.sh`.
+- `vmbr1` on `nic1` (VM trunk, VLAN aware, VLAN 100-103 tagged only) configured by
+  `scripts/proxmox-node/networking.sh`.
 - `local-data` (`nvme0n1p4`, btrfs, ~853 GiB) created by
   `scripts/proxmox-node/storage.sh`; `local` and `local-btrfs` disabled.
 - Time zone, NTP (chrony) and APT repositories configured by
@@ -69,3 +70,12 @@ Proxmox VE 9.2 (Debian 13 trixie).
   `--mixed`, or `git revert` when uncommitted work exists.
 - Verify state with separate commands rather than `&&` chains.
 - `ec` checks untracked files, which can produce unexpected failures.
+- A restart from inside a guest does not change how its NIC is tagged; only
+  `qm stop` and `qm start` does.
+- `files::backup` keeps the newest `SERVERLAB_BACKUP_KEEP` (default 5)
+  `<file>.bak.<timestamp>` files per file. The Proxmox GUI makes no backups.
+- `pvesh set ... --bridge_vlan_aware 0` leaves `bridge-vlan-aware yes` in
+  `/etc/network/interfaces`; turning VLAN aware off needs
+  `--delete bridge_vlan_aware,bridge_vids`.
+- With VLAN aware on, `nic1.<N>` and `vmbr1v<N>` left from the non-VLAN-aware
+  mode capture tagged traffic; guests get no address until they are deleted.
