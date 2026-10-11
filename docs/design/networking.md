@@ -21,9 +21,10 @@ The NIC is connected to a trunk port on the external networking equipment. The b
 | VLAN | Interface          | Zone     |
 | ---- | ------------------ | -------- |
 | 100  | `vlan100-general`  | GENERAL  |
-| 101  | `vlan101-dmz`      | DMZ      |
-| 102  | `vlan102-frontend` | FRONTEND |
-| 103  | `vlan103-backend`  | BACKEND  |
+| 110  | `vlan110-edge`     | EDGE     |
+| 120  | `vlan120-services` | SERVICES |
+| 130  | `vlan130-data`     | DATA     |
+| 140  | `vlan140-remote`   | REMOTE   |
 
 | Value of the `VM_*` keys                         | Effect                                                                                                                                               |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -39,9 +40,9 @@ The NIC is connected to a trunk port on the external networking equipment. The b
 
 The node needs no reboot. In both modes the VLAN tag on a guest NIC selects its VLAN.
 
-- VLAN aware off: for each tag in use, Proxmox creates `nic1.<N>` and `vmbr1v<N>` and connects the guest to `vmbr1v<N>`.
-- VLAN aware on: guests connect directly to `vmbr1` and the port gets the VLAN. `nic1.<N>` and `vmbr1v<N>` would capture the tagged traffic first, so the script deletes those not defined in `/etc/network/interfaces`.
-- After a switch, guests running on `vmbr1` need `qm stop` and `qm start`. A restart from inside the guest does not reconnect its NIC.
+- VLAN aware off: for each tag in use, Proxmox creates `<NET_VM_IFACE>.<N>` and `<NET_VM_BRIDGE>v<N>` and connects the guest to `<NET_VM_BRIDGE>v<N>`.
+- VLAN aware on: guests connect directly to `<NET_VM_BRIDGE>` and the port gets the VLAN. `<NET_VM_IFACE>.<N>` and `<NET_VM_BRIDGE>v<N>` would capture the tagged traffic first, so the script deletes those not defined in `/etc/network/interfaces`.
+- After a switch, guests running on `<NET_VM_BRIDGE>` need `qm stop` and `qm start`. A restart from inside the guest does not reconnect its NIC.
 - Each applied change backs up `/etc/network/interfaces` to `interfaces.bak.<timestamp>`. The newest 5 backups are kept.
 
 ## Implementation
@@ -50,14 +51,14 @@ The node needs no reboot. In both modes the VLAN tag on a guest NIC selects its 
 
 ## Verification
 
-| Check                                                      | Expected result                         |
-| ---------------------------------------------------------- | --------------------------------------- |
-| `ip -br link show <NET_VM_BRIDGE>`                         | The bridge exists                       |
-| `cat /sys/class/net/<NET_VM_BRIDGE>/bridge/vlan_filtering` | `1` (VLAN aware on), `0` (off)          |
-| `grep bridge-vids /etc/network/interfaces`                 | `bridge-vids 2-4094` (VLAN aware on)    |
-| `bridge vlan show dev <NET_VM_IFACE>`                      | The configured VLAN IDs (VLAN aware on) |
-| `ip -br link \| grep -E 'vmbr1v\|nic1\.'`                  | Nothing (VLAN aware on)                 |
-| `networking.sh --dry-run`                                  | Reports nothing to do                   |
+| Check                                                         | Expected result                         |
+| ------------------------------------------------------------- | --------------------------------------- |
+| `ip -br link show <NET_VM_BRIDGE>`                            | The bridge exists                       |
+| `cat /sys/class/net/<NET_VM_BRIDGE>/bridge/vlan_filtering`    | `1` (VLAN aware on), `0` (off)          |
+| `grep bridge-vids /etc/network/interfaces`                    | `bridge-vids 2-4094` (VLAN aware on)    |
+| `bridge vlan show dev <NET_VM_IFACE>`                         | The configured VLAN IDs (VLAN aware on) |
+| `ip -br link \| grep -E '<NET_VM_BRIDGE>v\|<NET_VM_IFACE>\.'` | Nothing (VLAN aware on)                 |
+| `networking.sh --dry-run`                                     | Reports nothing to do                   |
 
 ## Decision records
 
