@@ -12,7 +12,7 @@ Minisforum MS-A2, AMD Ryzen 9 9955HX, 29 GiB usable RAM, Kingston 1 TB NVMe.
 Proxmox VE 9.2 (Debian 13 trixie).
 
 - `vmbr0` on `nic0` (management, 192.168.88.101/24) from install.
-- `vmbr1` on `nic1` (VM trunk, VLAN aware, VLAN 100-103 tagged only) configured by
+- `vmbr1` on `nic1` (VM trunk, VLAN aware, VLAN 100, 110-140 tagged only) configured by
   `scripts/proxmox-node/networking.sh`.
 - `local-data` (`nvme0n1p4`, btrfs, ~853 GiB) created by
   `scripts/proxmox-node/storage.sh`; `local` and `local-btrfs` disabled.

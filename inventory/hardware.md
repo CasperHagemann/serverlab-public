@@ -53,10 +53,10 @@ with no errors, and the counts did not change afterwards.
 
 ### NICs
 
-| Name     | Driver  | Port      | Use                                       |
-| -------- | ------- | --------- | ----------------------------------------- |
-| `nic0`   | `igc`   | 2.5G RJ45 | Management (`vmbr0`); cabled, links at 1G |
-| `nic1`   | `r8169` | 2.5G RJ45 | VM trunk, VLAN 100–103 (`vmbr1`)          |
-| `nic2`   | `i40e`  | 10G SFP+  | Unused (no SFP modules)                   |
-| `nic3`   | `i40e`  | 10G SFP+  | Unused (no SFP modules)                   |
-| `wlp6s0` | Wi-Fi   | —         | Unused                                    |
+| Name     | Driver  | Port      | Use                                                |
+| -------- | ------- | --------- | -------------------------------------------------- |
+| `nic0`   | `igc`   | 2.5G RJ45 | Management (`NET_MGMT_IFACE`); cabled, links at 1G |
+| `nic1`   | `r8169` | 2.5G RJ45 | VM trunk (`NET_VM_IFACE`), VLAN 100, 110–140       |
+| `nic2`   | `i40e`  | 10G SFP+  | Unused (no SFP modules)                            |
+| `nic3`   | `i40e`  | 10G SFP+  | Unused (no SFP modules)                            |
+| `wlp6s0` | Wi-Fi   | —         | Unused                                             |
