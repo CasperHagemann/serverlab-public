@@ -1,13 +1,6 @@
----
-description: A guide for effectively using the sequentialthinking MCP tool for dynamic and reflective problem-solving.
-author: https://github.com/rafaelkallis
-version: 1.0
-category: "MCP Development"
-tags: ["mcp", "sequentialthinking", "problem-solving", "workflow-guide", "ai-guidance"]
-globs: ["*"] # Relevant for any task requiring complex thought processes
----
-
 # Guide to Using the `sequentialthinking` MCP Tool
+
+Adapted from a rule by https://github.com/rafaelkallis.
 
 ## 1. Objective
 
@@ -40,8 +33,8 @@ When invoking the `sequentialthinking` tool, Cline MUST adhere to the following 
     *   Explicitly mark thoughts that revise previous thinking using `isRevision: true` and `revisesThought: <thought_number>`.
     *   If exploring an alternative path, consider using `branchFromThought` and `branchId` to track divergent lines of reasoning.
 *   **Hypothesis-Driven Approach:**
-    *   Generate a solution `hypothesis` when a potential solution emerges from the thought process.
-    *   Verify the `hypothesis` based on the preceding Chain of Thought steps.
+    *   When a potential solution emerges, state it as a hypothesis in the `thought` text (e.g. "Hypothesis: ..."). There is no separate `hypothesis` parameter.
+    *   Verify the hypothesis in a following `thought` against the preceding steps (e.g. "Verification: ...").
     *   Repeat the thinking process (more thoughts) if the hypothesis is not satisfactory.
 *   **Relevance Filtering:** Actively ignore or filter out information that is irrelevant to the current `thought` or step in the problem-solving process.
 *   **Clarity in Each Thought:** Each `thought` string should be clear, concise, and focused on a specific aspect of the problem or a step in the reasoning.
